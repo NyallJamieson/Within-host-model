@@ -1,0 +1,100 @@
+load("ker_alpha.RData")
+load("ker_beta.RData")
+load("ker_G.RData")
+load("ker_lambda.RData")
+load("ker_A.RData")
+load("ker_w.RData")
+load("ker_C.RData")
+load("ker_phi.RData")
+load("ker_T.RData")
+
+plot(ker_alpha,lwd=2,xlim=c(0,0.06),col="black",xlab=expression(alpha),main=expression(paste("Distribution of ", alpha)))
+polygon(c(ker_alpha$x,rev(ker_alpha$x)),c(ker_alpha$y,rep(0,length(ker_alpha$y))),col="skyblue",border="black")
+
+plot(ker_beta,lwd=2,xlim=c(0,1),col="black",xlab=expression(beta),main=expression(paste("Distribution of ", beta)))
+polygon(c(ker_beta$x,rev(ker_beta$x)),c(ker_beta$y,rep(0,length(ker_beta$y))),col="skyblue",border="black")
+
+plot(ker_G,lwd=2,col="black",xlab=expression("G"),main=expression("Distribution of G"))
+polygon(c(ker_G$x,rev(ker_G$x)),c(ker_G$y,rep(0,length(ker_G$y))),col="skyblue",border="black")
+
+plot(ker_lambda,lwd=2,col="black",xlab=expression(lambda),main=expression(paste("Distribution of ", lambda)))
+polygon(c(ker_lambda$x,rev(ker_lambda$x)),c(ker_lambda$y,rep(0,length(ker_lambda$y))),col="skyblue",border="black")
+
+plot(ker_A,lwd=2,col="black",xlab=expression("A"),main=expression("Distribution of A"))
+polygon(c(ker_A$x,rev(ker_A$x)),c(ker_A$y,rep(0,length(ker_A$y))),col="skyblue",border="black")
+
+plot(ker_w,lwd=2,col="black",xlab=expression(omega),main=expression(paste("Distribution of ", omega)))
+polygon(c(ker_w$x,rev(ker_w$x)),c(ker_w$y,rep(0,length(ker_w$y))),col="skyblue",border="black")
+
+plot(ker_C,lwd=2,xlim=c(140,200),col="black",xlab=expression("C"),main=expression("Distribution of C"))
+polygon(c(ker_C$x,rev(ker_C$x)),c(ker_C$y,rep(0,length(ker_C$y))),col="skyblue",border="black")
+
+plot(ker_phi,lwd=2,col="black",xlab=expression(phi),main=expression(paste("Distribution of ", phi)))
+polygon(c(ker_phi$x,rev(ker_phi$x)),c(ker_phi$y,rep(0,length(ker_phi$y))),col="skyblue",border="black")
+
+plot(ker_T,lwd=2,col="black",xlab=expression("T"),main=expression("Distribution of T"),xaxt="n",xlim=c(0,100000))
+axis(1, at = seq(0,100000,by=20000), labels = c(0,20000,40000,60000,80000,"100000"))
+polygon(c(ker_T$x,rev(ker_T$x)),c(ker_T$y,rep(0,length(ker_T$y))),col="skyblue",border="black")
+
+cdf_alpha <- cumsum(ker_alpha$y)/sum(ker_alpha$y)
+sample_from_dens_alpha <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_alpha,ker_alpha$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_beta <- cumsum(ker_beta$y)/sum(ker_beta$y)
+sample_from_dens_beta <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_beta,ker_beta$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_G <- cumsum(ker_G$y)/sum(ker_G$y)
+sample_from_dens_G <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_lambda <- cumsum(ker_lambda$y)/sum(ker_lambda$y)
+sample_from_dens_lambda <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_lambda,ker_lambda$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_A <- cumsum(ker_A$y)/sum(ker_A$y)
+sample_from_dens_A <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_A,ker_A$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_w <- cumsum(ker_w$y)/sum(ker_w$y)
+sample_from_dens_w <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_w,ker_w$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_C <- cumsum(ker_C$y)/sum(ker_C$y)
+sample_from_dens_C <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_C,ker_C$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_phi <- cumsum(ker_phi$y)/sum(ker_phi$y)
+sample_from_dens_phi <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_phi,ker_phi$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_T <- cumsum(ker_T$y)/sum(ker_T$y)
+sample_from_dens_T <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_T,ker_T$x,xout=u)$y
+return(sampled_values)
+}
