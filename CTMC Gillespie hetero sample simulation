@@ -1,0 +1,137 @@
+load("ker_alpha.RData")
+load("ker_beta.RData")
+load("ker_G.RData")
+load("ker_lambda.RData")
+load("ker_A.RData")
+load("ker_w.RData")
+load("ker_C.RData")
+load("ker_phi.RData")
+load("ker_T.RData")
+
+cdf_alpha <- cumsum(ker_alpha$y)/sum(ker_alpha$y)
+sample_from_dens_alpha <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_alpha,ker_alpha$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_beta <- cumsum(ker_beta$y)/sum(ker_beta$y)
+sample_from_dens_beta <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_beta,ker_beta$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_G <- cumsum(ker_G$y)/sum(ker_G$y)
+sample_from_dens_G <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_lambda <- cumsum(ker_lambda$y)/sum(ker_lambda$y)
+sample_from_dens_lambda <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_lambda,ker_lambda$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_A <- cumsum(ker_A$y)/sum(ker_A$y)
+sample_from_dens_A <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_A,ker_A$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_w <- cumsum(ker_w$y)/sum(ker_w$y)
+sample_from_dens_w <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_w,ker_w$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_C <- cumsum(ker_C$y)/sum(ker_C$y)
+sample_from_dens_C <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_C,ker_C$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_phi <- cumsum(ker_phi$y)/sum(ker_phi$y)
+sample_from_dens_phi <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_phi,ker_phi$x,xout=u)$y
+return(sampled_values)
+}
+
+cdf_T <- cumsum(ker_T$y)/sum(ker_T$y)
+sample_from_dens_T <- function(n){
+u <- runif(n)
+sampled_values <- approx(cdf_T,ker_T$x,xout=u)$y
+return(sampled_values)
+}
+
+
+
+MODEL.onestep <- function(x,params){
+             G <- round(sample_from_dens_G(1)) 
+             alpha <- params["alpha"]
+             beta <- params["beta"]
+             lambda <- params["lambda"]
+             L <- x[2]
+               M <- x[3]
+               rates <- c(
+                              sphago <- alpha*L,
+                              fphago <- beta*L,
+                              burst <- lambda*M
+               )
+               total.rates <- sum(rates)
+               if (total.rates==0)
+                              tau <- -Inf
+               else
+                              tau <- rexp(n=1,rate=total.rates)
+               transitions <- list(
+                              successfulPHA <- c(-1,1),
+                              failedPHA <- c(-1,0),
+                              bursted <- c(G,-1)
+               )
+               event <- sample.int(n=3,size=1,prob=rates/total.rates)
+               x+c(tau,transitions[[event]])
+}
+
+illcount <- 0
+illtime <- c()
+varName1 <- "illcount"
+varName2 <- "illtime"
+
+MODEL.simul <- function(y,maxstep=10000000){
+	     dose <- xstart["L"]
+	     x <- xstart
+             p <- c("lambda"=sample_from_dens_lambda(1),"alpha"=sample_from_dens_alpha(1),"beta"=sample_from_dens_beta(1))
+             threshold <- sample_from_dens_T(1)
+             illcount.copy <- get(varName1)
+             illtime.copy <- get(varName2)
+             output <- array(dim=c(maxstep+1,3))
+             colnames(output) <- names(x)
+             output[1,] <- x
+             k <- 1
+             while ((k <= maxstep) && (x["L"] > 0 | x["M"] >0) && (x["L"] < threshold)){
+                            k <- k+1
+                            output[k,] <- x <- MODEL.onestep(x,params=p)}
+             t <- output[k,1]
+             if (x["L"]!=0){
+                  return(c("L"=as.numeric(xstart["L"]),"time"=as.numeric(x["time"])))
+             }
+}
+
+results <- data.frame(matrix(ncol = 2, nrow = 0))
+colnames(results) <- c("L","time")
+
+for (i in 1:500){
+print(i)
+xstart <- c(time=0,L=i,M=0)
+sim_results <- as.data.frame(na.omit(do.call(rbind,parallel::mclapply(1:1000,MODEL.simul,mc.cores=parallel::detectCores())),na.action="omit"))
+sim_results[,1] <- as.numeric(sim_results[,1])
+sim_results[,2] <- as.numeric(sim_results[,2])
+
+results <- bind_rows(results,sim_results)}
