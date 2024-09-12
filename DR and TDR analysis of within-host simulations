@@ -1,0 +1,164 @@
+# Constant
+R1 <- read.csv("RESULTS-CONSTANT.csv")[,2:3]
+dose <- seq(1,500,by=1)
+prob <- unname(table(R1[,1]))/1000
+plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model A",yaxt="n")
+axis(2, at = c(0,0.5,1), labels = c(0,0.5,1.0))
+
+dr1 <- minpack.lm::nlsLM(prob~1-exp(-log(2)*dose/d50),start=list(d50=1),control = nls.control(maxiter = 1000))
+dr2 <- minpack.lm::nlsLM(prob~1-gsl::hyperg_1F1(a,a+b,-dose),start=list(a=1,b=1),control = nls.control(maxiter = 1000))
+dr3 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)),start=list(a=1,d50=1),control = nls.control(maxiter = 1000))
+dr4 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))),start=list(a=1,b=1,d50=12),control = nls.control(maxiter = 1000))
+dr5 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-c*(dose-d50))*(exp(b*d50)-1)/(exp(b*dose)-1)),start=list(a=0.5,b=0.5,c=0.5,d50=10))
+
+code <- function(dose,a,b,c,d50){1/(1+(d50/dose)^(a)*exp(-c*(dose-d50))*(exp(b*d50)-1)/(exp(b*dose)-1))}
+lines(seq(1,70,by=1),code(dose=seq(1,70,by=1),a=coef(dr5)[1],b=coef(dr5)[2],c=coef(dr5)[3],d50=coef(dr5)[4]))
+
+aic1 <- AIC(dr1)
+aic2 <- AIC(dr2)
+aic3 <- AIC(dr3)
+aic4 <- AIC(dr4)
+aic5 <- AIC(dr5)
+
+d <- seq(1,500,by=1)
+t <- seq(0,200,by=0.5)
+val <- c()
+for (i in t){
+print(i)
+for (j in d){
+val <- append(val,length(R1[which(R1[,1]==j&R1[,2]<=i),2])/1000)}}
+data <- expand.grid(X=d,Y=t)
+data$Z <- val
+data[length(d)*length(t)+1,] <-c(1000,1000,1)
+
+library("ggplot2")
+ggplot(data,aes(X,Y,fill=Z))+
+geom_tile()+
+scale_fill_gradientn(colours=rainbow(5)) +
+theme(panel.background=element_blank(),axis.line = element_line(colour = "black"))+
+scale_x_continuous(limits=c(0, 100), expand = c(0, 0)) +
+scale_y_continuous(limits=c(50, 200), expand = c(0, 0))+
+labs(x="Dose",y="Time in Hours",fill="Probability")
+
+pburrNEW <- function(x,a,b,T){(1+(T/x)^(a)*exp((T-x)/b))^(-1)}
+tdr1 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0/Y+k1)*X),start=list(k0=1,k1=1),data=data,control = nls.control(maxiter = 1000))
+tdr2 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y^(-k2)+k1)*X),start=list(k0=1,k1=1,k2=1),data=data,control = nls.control(maxiter = 1000))
+tdr3 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y+k1)*X),start=list(k0=1,k1=1),data=data,control = nls.control(maxiter = 1000))
+tdr4 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0/Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data,control = nls.control(maxiter = 1000))
+tdr5 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y^(-j2)+j1))^(-a),start=list(a=1,j0=1,j1=1,j2=1),data=data,control = nls.control(maxiter = 1000))
+tdr6 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data,control = nls.control(maxiter = 1000))
+tdr7 <- minpack.lm::nlsLM(Z~code(dose=X,a=q1,b=q2,c=q3,d50=q4)*pburrNEW(x=Y,a=q5,b=q6,T=q7*d^(-q8)+q9),start=list(q1=1,q2=1,q3=1,q4=10,q5=1,q6=1,q7=1,q8=1,q9=1),data=data,control = nls.control(maxiter = 1000))
+
+model <- function(pars){return(sum((data[,3]-code(dose=data[,1],a=pars[1],b=pars[2],c=pars[3],d50=pars[4])*pburrNEW(x=data[,2],a=pars[5],b=pars[6],T=pars[7]*exp(-pars[8])))^2))}
+
+
+
+
+
+
+
+m1 <- c()
+m2 <- c()
+m3 <- c()
+m4 <- c()
+for (i in 1:500){
+times <- R1[which(R1[,1]==i),2]
+m1 <- append(m1,mean(times))
+m2 <- append(m2,var(times))
+m3 <- append(m3,PerformanceAnalytics::skewness(times))
+m4 <- append(m4,PerformanceAnalytics::kurtosis(times,method="moment"))
+}
+m1 <- m1/24
+sd <- m2^0.5
+
+plot(m1,type="l")
+plot(sd,type="l")
+
+# Elbow method
+
+summary_matrix <- as.matrix(data.frame(m1,m2,m3,m4))
+# Install and load necessary packages
+install.packages("cluster")
+library(cluster)
+
+# Compute hierarchical clustering
+hc <- hclust(dist(summary_matrix), method = "ward.D2")
+# Function to compute WCSS
+calculate_wcss <- function(k) {
+  clusters_k <- cutree(hc, k)
+  clusters_list <- split(summary_matrix, clusters_k)
+  wcss <- sum(sapply(clusters_list, function(cluster) {
+    sum(dist(cluster)^2)
+  }))
+  return(wcss)
+}
+
+# Compute WCSS for a range of k
+k_values <- 2:10
+wcss_values <- sapply(k_values, calculate_wcss)
+
+# Plot the Elbow Method
+plot(k_values, wcss_values, type = "b", pch = 19, xlab = "Number of Clusters", ylab = "Within-Cluster Sum of Squares (WCSS)", main = "Elbow Method for Optimal k")
+
+clusters <- cutree(hc, k = 3)
+low <- c()
+for (i in which(clusters==1)){
+low <- append(low,R1[which(R1[,1]==i),2])
+}
+medium <- c()
+for (i in which(clusters==2)){
+medium <- append(medium,R1[which(R1[,1]==i),2])
+}
+high <- c()
+for (i in which(clusters==3)){
+high <- append(high,R1[which(R1[,1]==i),2])
+}
+dens1 <- density(low)
+dens2 <- density(medium)
+dens3 <- density(high)
+plot(dens1,lwd=2,type="l",xlim=c(60,200),ylim=c(0,0.1))
+lines(dens2,lwd=2,col="red")
+lines(dens3,lwd=2,col="green")
+
+
+
+
+# Nb
+R1 <- read.csv("RESULTS_NEGBIN.csv")[,2:3]
+dose <- seq(1,500,by=1)
+prob <- unname(table(R1[,1]))/1000
+plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model A",yaxt="n")
+axis(2, at = c(0,0.5,1), labels = c(0,0.5,1.0))
+
+dr1 <- minpack.lm::nlsLM(prob~1-exp(-log(2)*dose/d50),start=list(d50=1),control = nls.control(maxiter = 1000))
+dr2 <- minpack.lm::nlsLM(prob~1-gsl::hyperg_1F1(a,a+b,-dose),start=list(a=1,b=1),control = nls.control(maxiter = 1000))
+dr3 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)),start=list(a=1,d50=1),control = nls.control(maxiter = 1000))
+dr4 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))),start=list(a=1,b=1,d50=12),control = nls.control(maxiter = 1000))
+
+aic1 <- AIC(dr1)
+aic2 <- AIC(dr2)
+aic3 <- AIC(dr3)
+aic4 <- AIC(dr4)
+
+lines(seq(1,70,by=1),1-exp(-log(2)*seq(1,70,by=1)/coef(dr1)),lwd=2)
+lines(seq(1,70,by=1),1-gsl::hyperg_1F1(coef(dr2)[1],coef(dr2)[1]+coef(dr2)[2],-seq(1,70,by=1)),col="red",lwd=2)
+lines(seq(1,70,by=1),1/(1+(coef(dr3)[2]/seq(1,70,by=1))^(coef(dr3)[1])),col="blue")
+lines(seq(1,70,by=1),1/(1+(coef(dr4)[3]/seq(1,70,by=1))^(coef(dr4)[1])*exp(-coef(dr4)[2]*(seq(1,70,by=1)-coef(dr4)[3]))),col="green",lwd=2)
+
+
+# Hetero exact
+R1 <- read.csv("RESULTS-HETEROEXACT.csv")[,2:3]
+dose <- seq(1,500,by=1)
+prob <- unname(table(R1[,1]))/1000
+plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model A",yaxt="n")
+axis(2, at = c(0,0.5,1), labels = c(0,0.5,1.0))
+
+dr1 <- minpack.lm::nlsLM(prob~1-exp(-log(2)*dose/d50),start=list(d50=1),control = nls.control(maxiter = 1000))
+dr2 <- minpack.lm::nlsLM(prob~1-gsl::hyperg_1F1(a,a+b,-dose),start=list(a=1,b=1),control = nls.control(maxiter = 1000))
+dr3 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)),start=list(a=1,d50=1),control = nls.control(maxiter = 1000))
+dr4 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))),start=list(a=1,b=1,d50=12),control = nls.control(maxiter = 1000))
+
+aic1 <- AIC(dr1)
+aic2 <- AIC(dr2)
+aic3 <- AIC(dr3)
+aic4 <- AIC(dr4)
