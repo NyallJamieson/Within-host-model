@@ -117,6 +117,14 @@ lines(dens3,lwd=2,col="green")
 legend("topright",lwd=2,col=c("black","red","green"),legend=c("low-dose","medium-dose","high-dose"))
 
 
+low_dist_norm <- fitdistrplus::fitdist(low/24,"norm",method="mle")
+low_dist_lnorm <- fitdistrplus::fitdist(low/24,"lnorm",method="mle")
+low_dist_gamma <- fitdistrplus::fitdist(low/24,"gamma",method="mle")
+low_dist_weibull <- fitdistrplus::fitdist(low/24,"weibull",method="mle")
+low_dist_burr <- fitdistrplus::fitdist(low/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5)
+
+
+
 
 # Nb
 R1 <- read.csv("RESULTS_NEGBIN.csv")[,2:3]
