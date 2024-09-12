@@ -49,14 +49,7 @@ tdr5 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y^(-j2)+j1))^(-a),start=li
 tdr6 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data,control = nls.control(maxiter = 1000))
 tdr7 <- minpack.lm::nlsLM(Z~code(dose=X,a=q1,b=q2,c=q3,d50=q4)*pburrNEW(x=Y,a=q5,b=q6,T=q7*d^(-q8)+q9),start=list(q1=1,q2=1,q3=1,q4=10,q5=1,q6=1,q7=1,q8=1,q9=1),data=data,control = nls.control(maxiter = 1000))
 
-model <- function(pars){return(sum((data[,3]-code(dose=data[,1],a=pars[1],b=pars[2],c=pars[3],d50=pars[4])*pburrNEW(x=data[,2],a=pars[5],b=pars[6],T=pars[7]*exp(-pars[8])))^2))}
-
-
-
-
-
-
-
+# moment calculations
 m1 <- c()
 m2 <- c()
 m3 <- c()
@@ -69,16 +62,18 @@ m3 <- append(m3,PerformanceAnalytics::skewness(times))
 m4 <- append(m4,PerformanceAnalytics::kurtosis(times,method="moment"))
 }
 m1 <- m1/24
-sd <- m2^0.5
+sd <- (m2^0.5)/24
 
-plot(m1,type="l")
-plot(sd,type="l")
+plot(m3,col="blue",lwd=2,ylim=c(0,6),type="l",xlab="Deposited dose",main="First four moments of the dose-dependent incubation period")
+lines(log(m4),col="green",lwd=2)
+lines(sd,type="l",lwd=2,col="red")
+lines(m1,lwd=2)
+legend("topright",col=c("black","red","blue","green"),legend=c("mean","log(standard deviation)","skewness","log(kurtosis)"),lwd=2)
 
-# Elbow method
+Elbow method
 
 summary_matrix <- as.matrix(data.frame(m1,m2,m3,m4))
 # Install and load necessary packages
-install.packages("cluster")
 library(cluster)
 
 # Compute hierarchical clustering
@@ -116,10 +111,10 @@ high <- append(high,R1[which(R1[,1]==i),2])
 dens1 <- density(low)
 dens2 <- density(medium)
 dens3 <- density(high)
-plot(dens1,lwd=2,type="l",xlim=c(60,200),ylim=c(0,0.1))
+plot(dens1,lwd=2,type="l",xlim=c(60,200),ylim=c(0,0.1),xlab="Time in hours",main="Clustered dose-dependent incubation-period distributions")
 lines(dens2,lwd=2,col="red")
 lines(dens3,lwd=2,col="green")
-
+legend("topright",lwd=2,col=c("black","red","green"),legend=c("low-dose","medium-dose","high-dose"))
 
 
 
