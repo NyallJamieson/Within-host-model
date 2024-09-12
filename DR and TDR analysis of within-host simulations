@@ -1,3 +1,6 @@
+dburrNEW <- function(x,a,b,T){(x/b+a)*(T/x)^(a)*exp((T-x)/b)/(x*(1+(T/x)^(a)*exp((T-x)/b))^2)}
+pburrNEW <- function(x,a,b,T){(1+(T/x)^(a)*exp((T-x)/b))^(-1)}
+
 # Constant
 R1 <- read.csv("RESULTS-CONSTANT.csv")[,2:3]
 dose <- seq(1,500,by=1)
