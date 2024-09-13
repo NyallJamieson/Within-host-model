@@ -52,6 +52,10 @@ tdr5 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y^(-j2)+j1))^(-a),start=li
 tdr6 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data,control = nls.control(maxiter = 1000))
 tdr7 <- minpack.lm::nlsLM(Z~code(dose=X,a=q1,b=q2,c=q3,d50=q4)*pburrNEW(x=Y,a=q5,b=q6,T=q7*d^(-q8)+q9),start=list(q1=1,q2=1,q3=1,q4=10,q5=1,q6=1,q7=1,q8=1,q9=1),data=data,control = nls.control(maxiter = 1000))
 
+meds <- c()
+for (i in 1:500){
+meds <- append(meds, median(R1[which(R1[,1]==i),2]))}
+
 # moment calculations
 m1 <- c()
 m2 <- c()
@@ -124,7 +128,7 @@ low_dist_norm <- fitdistrplus::fitdist(low/24,"norm",method="mle")
 low_dist_lnorm <- fitdistrplus::fitdist(low/24,"lnorm",method="mle")
 low_dist_gamma <- fitdistrplus::fitdist(low/24,"gamma",method="mle")
 low_dist_weibull <- fitdistrplus::fitdist(low/24,"weibull",method="mle")
-low_dist_burr <- fitdistrplus::fitdist(low/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5)
+low_dist_burr <- fitdistrplus::fitdist(low/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
 
 
 
