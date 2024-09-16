@@ -120,6 +120,30 @@ lines(dens2,lwd=2,col="red")
 lines(dens3,lwd=2,col="green")
 legend("topright",lwd=2,col=c("black","red","green"),legend=c("low-dose","medium-dose","high-dose"))
 
+low_mean <- mean(low)
+low_var <- var(low)
+low_skew <- PerformanceAnalytics::skewness(low)
+low_kurt <- PerformanceAnalytics::kurtosis(low,method="moment")
+med_mean <- mean(medium)
+med_var <- var(medium)
+med_skew <- PerformanceAnalytics::skewness(medium)
+med_kurt <- PerformanceAnalytics::kurtosis(medium,method="moment")
+high_mean <- mean(high)
+high_var <- var(high)
+high_skew <- PerformanceAnalytics::skewness(high)
+high_kurt <- PerformanceAnalytics::kurtosis(high,method="moment")
+low_mean
+low_var
+low_skew
+low_kurt
+med_mean
+med_var
+med_skew
+med_kurt
+high_mean
+high_var
+high_skew
+high_var
 
 low_dist_norm <- fitdistrplus::fitdist(low/24,"norm",method="mle")
 low_dist_lnorm <- fitdistrplus::fitdist(low/24,"lnorm",method="mle")
@@ -275,6 +299,31 @@ lines(dens2,lwd=2,col="red")
 lines(dens3,lwd=2,col="green")
 legend("topright",lwd=2,col=c("black","red","green"),legend=c("low-dose","medium-dose","high-dose"))
 
+low_mean <- mean(low)
+low_var <- var(low)
+low_skew <- PerformanceAnalytics::skewness(low)
+low_kurt <- PerformanceAnalytics::kurtosis(low,method="moment")
+med_mean <- mean(medium)
+med_var <- var(medium)
+med_skew <- PerformanceAnalytics::skewness(medium)
+med_kurt <- PerformanceAnalytics::kurtosis(medium,method="moment")
+high_mean <- mean(high)
+high_var <- var(high)
+high_skew <- PerformanceAnalytics::skewness(high)
+high_kurt <- PerformanceAnalytics::kurtosis(high,method="moment")
+low_mean
+low_var
+low_skew
+low_kurt
+med_mean
+med_var
+med_skew
+med_kurt
+high_mean
+high_var
+high_skew
+high_var
+
 low_dist_norm <- fitdistrplus::fitdist(low/24,"norm",method="mle")
 low_dist_lnorm <- fitdistrplus::fitdist(low/24,"lnorm",method="mle")
 low_dist_gamma <- fitdistrplus::fitdist(low/24,"gamma",method="mle")
@@ -427,6 +476,38 @@ lines(dens4,lwd=2,col="green")
 lines(dens3,lwd=2,col="blue")
 legend("topright",lwd=2,col=c("black","red","blue","green"),legend=c("low-dose","medium-dose 1","medium-dose 2","high-dose"))
 
+low_mean <- mean(low)
+low_var <- var(low)
+low_skew <- PerformanceAnalytics::skewness(low)
+low_kurt <- PerformanceAnalytics::kurtosis(low,method="moment")
+med1_mean <- mean(medium1)
+med1_var <- var(medium1)
+med1_skew <- PerformanceAnalytics::skewness(medium1)
+med1_kurt <- PerformanceAnalytics::kurtosis(medium1,method="moment")
+med2_mean <- mean(medium2)
+med2_var <- var(medium2)
+med2_skew <- PerformanceAnalytics::skewness(medium2)
+med2_kurt <- PerformanceAnalytics::kurtosis(medium2,method="moment")
+high_mean <- mean(high)
+high_var <- var(high)
+high_skew <- PerformanceAnalytics::skewness(high)
+high_kurt <- PerformanceAnalytics::kurtosis(high,method="moment")
+low_mean
+low_var
+low_skew
+low_kurt
+med1_mean
+med1_var
+med1_skew
+med1_kurt
+med2_mean
+med2_var
+med2_skew
+med2_kurt
+high_mean
+high_var
+high_skew
+high_var
 
 low_dist_norm <- fitdistrplus::fitdist(low/24,"norm",method="mle")
 low_dist_lnorm <- fitdistrplus::fitdist(low/24,"lnorm",method="mle")
