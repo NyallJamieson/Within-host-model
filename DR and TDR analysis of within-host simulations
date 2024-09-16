@@ -1,3 +1,4 @@
+
 dburrNEW <- function(x,a,b,T){(x/b+a)*(T/x)^(a)*exp((T-x)/b)/(x*(1+(T/x)^(a)*exp((T-x)/b))^2)}
 pburrNEW <- function(x,a,b,T){(1+(T/x)^(a)*exp((T-x)/b))^(-1)}
 
@@ -12,9 +13,9 @@ dr1 <- minpack.lm::nlsLM(prob~1-exp(-log(2)*dose/d50),start=list(d50=1),control 
 dr2 <- minpack.lm::nlsLM(prob~1-gsl::hyperg_1F1(a,a+b,-dose),start=list(a=1,b=1),control = nls.control(maxiter = 1000))
 dr3 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)),start=list(a=1,d50=1),control = nls.control(maxiter = 1000))
 dr4 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))),start=list(a=1,b=1,d50=12),control = nls.control(maxiter = 1000))
-dr5 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-c*(dose-d50))*(exp(b*d50)-1)/(exp(b*dose)-1)),start=list(a=0.5,b=0.5,c=0.5,d50=10))
+dr5 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))*(exp(y*d50)-1)/(exp(y*dose)-1)),start=list(a=0.5,b=0.5,y=0.5,d50=10))
 
-code <- function(dose,a,b,c,d50){1/(1+(d50/dose)^(a)*exp(-c*(dose-d50))*(exp(b*d50)-1)/(exp(b*dose)-1))}
+code <- function(dose,a,b,y,d50){1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))*(exp(y*d50)-1)/(exp(y*dose)-1))}
 lines(seq(1,70,by=1),code(dose=seq(1,70,by=1),a=coef(dr5)[1],b=coef(dr5)[2],c=coef(dr5)[3],d50=coef(dr5)[4]))
 
 aic1 <- AIC(dr1)
@@ -30,12 +31,12 @@ for (i in t){
 print(i)
 for (j in d){
 val <- append(val,length(R1[which(R1[,1]==j&R1[,2]<=i),2])/1000)}}
-data <- expand.grid(X=d,Y=t)
-data$Z <- val
-data[length(d)*length(t)+1,] <-c(1000,1000,1)
+data1 <- expand.grid(X=d,Y=t)
+data1$Z <- val
+data1[length(d)*length(t)+1,] <-c(1000,1000,1)
 
 library("ggplot2")
-ggplot(data,aes(X,Y,fill=Z))+
+ggplot(data1,aes(X,Y,fill=Z))+
 geom_tile()+
 scale_fill_gradientn(colours=rainbow(5)) +
 theme(panel.background=element_blank(),axis.line = element_line(colour = "black"))+
@@ -44,17 +45,13 @@ scale_y_continuous(limits=c(50, 200), expand = c(0, 0))+
 labs(x="Dose",y="Time in Hours",fill="Probability")
 
 pburrNEW <- function(x,a,b,T){(1+(T/x)^(a)*exp((T-x)/b))^(-1)}
-tdr1 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0/Y+k1)*X),start=list(k0=1,k1=1),data=data,control = nls.control(maxiter = 1000))
-tdr2 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y^(-k2)+k1)*X),start=list(k0=1,k1=1,k2=1),data=data,control = nls.control(maxiter = 1000))
-tdr3 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y+k1)*X),start=list(k0=1,k1=1),data=data,control = nls.control(maxiter = 1000))
-tdr4 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0/Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data,control = nls.control(maxiter = 1000))
-tdr5 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y^(-j2)+j1))^(-a),start=list(a=1,j0=1,j1=1,j2=1),data=data,control = nls.control(maxiter = 1000))
-tdr6 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data,control = nls.control(maxiter = 1000))
-tdr7 <- minpack.lm::nlsLM(Z~code(dose=X,a=q1,b=q2,c=q3,d50=q4)*pburrNEW(x=Y,a=q5,b=q6,T=q7*d^(-q8)+q9),start=list(q1=1,q2=1,q3=1,q4=10,q5=1,q6=1,q7=1,q8=1,q9=1),data=data,control = nls.control(maxiter = 1000))
-
-meds <- c()
-for (i in 1:500){
-meds <- append(meds, median(R1[which(R1[,1]==i),2]))}
+tdr1 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0/Y+k1)*X),start=list(k0=1,k1=1),data=data1,control = nls.control(maxiter = 1000))
+tdr2 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y^(-k2)+k1)*X),start=list(k0=1,k1=1,k2=1),data=data1,control = nls.control(maxiter = 1000))
+tdr3 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y+k1)*X),start=list(k0=1,k1=1),data=data1,control = nls.control(maxiter = 1000))
+tdr4 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0/Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data1,control = nls.control(maxiter = 1000))
+tdr5 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y^(-j2)+j1))^(-a),start=list(a=1,j0=1,j1=1,j2=1),data=data1,control = nls.control(maxiter = 1000))
+tdr6 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data1,control = nls.control(maxiter = 1000))
+tdr7 <- minpack.lm::nlsLM(Z~code(dose=X,a=q1,b=q2,y=q3,d50=q4)*pburrNEW(x=Y,a=q5,b=q6,T=q7*d^(-q8)+q9),start=list(q1=1,q2=1,q3=1,q4=10,q5=1,q6=1,q7=1,q8=1,q9=1),data=data1,control = nls.control(maxiter = 1000))
 
 # moment calculations
 m1 <- c()
@@ -71,13 +68,13 @@ m4 <- append(m4,PerformanceAnalytics::kurtosis(times,method="moment"))
 m1 <- m1/24
 sd <- (m2^0.5)/24
 
-plot(m3,col="blue",lwd=2,ylim=c(0,6),type="l",xlab="Deposited dose",main="First four moments of the dose-dependent incubation period")
+plot(m3,col="blue",lwd=2,ylim=c(0,6),type="l",xlab="Deposited dose",ylab="Moments for model A",main="First four moments of the dose-dependent incubation period")
 lines(log(m4),col="green",lwd=2)
 lines(sd,type="l",lwd=2,col="red")
 lines(m1,lwd=2)
 legend("topright",col=c("black","red","blue","green"),legend=c("mean","log(standard deviation)","skewness","log(kurtosis)"),lwd=2)
 
-Elbow method
+# Elbow method
 
 summary_matrix <- as.matrix(data.frame(m1,m2,m3,m4))
 # Install and load necessary packages
@@ -129,14 +126,39 @@ low_dist_lnorm <- fitdistrplus::fitdist(low/24,"lnorm",method="mle")
 low_dist_gamma <- fitdistrplus::fitdist(low/24,"gamma",method="mle")
 low_dist_weibull <- fitdistrplus::fitdist(low/24,"weibull",method="mle")
 low_dist_burr <- fitdistrplus::fitdist(low/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
+med_dist_norm <- fitdistrplus::fitdist(medium/24,"norm",method="mle")
+med_dist_lnorm <- fitdistrplus::fitdist(medium/24,"lnorm",method="mle")
+med_dist_gamma <- fitdistrplus::fitdist(medium/24,"gamma",method="mle")
+med_dist_weibull <- fitdistrplus::fitdist(medium/24,"weibull",method="mle")
+med_dist_burr <- fitdistrplus::fitdist(medium/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
+high_dist_norm <- fitdistrplus::fitdist(high/24,"norm",method="mle")
+high_dist_lnorm <- fitdistrplus::fitdist(high/24,"lnorm",method="mle")
+high_dist_gamma <- fitdistrplus::fitdist(high/24,"gamma",method="mle")
+high_dist_weibull <- fitdistrplus::fitdist(high/24,"weibull",method="mle")
+high_dist_burr <- fitdistrplus::fitdist(high/24,"burrNEW",method="mle",start=list(a=0.5,b=0.5,T=5))
+AIC(low_dist_norm)
+AIC(low_dist_lnorm)
+AIC(low_dist_gamma)
+AIC(low_dist_weibull)
+AIC(low_dist_burr)
+AIC(med_dist_norm)
+AIC(med_dist_lnorm)
+AIC(med_dist_gamma)
+AIC(med_dist_weibull)
+AIC(med_dist_burr)
+AIC(high_dist_norm)
+AIC(high_dist_lnorm)
+AIC(high_dist_gamma)
+AIC(high_dist_weibull)
+AIC(high_dist_burr)
 
 
 
 
 # Nb
-R1 <- read.csv("RESULTS_NEGBIN.csv")[,2:3]
+R2 <- read.csv("RESULTS_NEGBIN.csv")[,2:3]
 dose <- seq(1,500,by=1)
-prob <- unname(table(R1[,1]))/1000
+prob <- unname(table(R2[,1]))/1000
 plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model A",yaxt="n")
 axis(2, at = c(0,0.5,1), labels = c(0,0.5,1.0))
 
@@ -144,6 +166,7 @@ dr1 <- minpack.lm::nlsLM(prob~1-exp(-log(2)*dose/d50),start=list(d50=1),control 
 dr2 <- minpack.lm::nlsLM(prob~1-gsl::hyperg_1F1(a,a+b,-dose),start=list(a=1,b=1),control = nls.control(maxiter = 1000))
 dr3 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)),start=list(a=1,d50=1),control = nls.control(maxiter = 1000))
 dr4 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))),start=list(a=1,b=1,d50=12),control = nls.control(maxiter = 1000))
+dr5 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))*(exp(y*d50)-1)/(exp(y*dose)-1)),start=list(a=0.5,b=0.5,y=0.5,d50=10))
 
 aic1 <- AIC(dr1)
 aic2 <- AIC(dr2)
@@ -155,11 +178,138 @@ lines(seq(1,70,by=1),1-gsl::hyperg_1F1(coef(dr2)[1],coef(dr2)[1]+coef(dr2)[2],-s
 lines(seq(1,70,by=1),1/(1+(coef(dr3)[2]/seq(1,70,by=1))^(coef(dr3)[1])),col="blue")
 lines(seq(1,70,by=1),1/(1+(coef(dr4)[3]/seq(1,70,by=1))^(coef(dr4)[1])*exp(-coef(dr4)[2]*(seq(1,70,by=1)-coef(dr4)[3]))),col="green",lwd=2)
 
+d <- seq(1,500,by=1)
+t <- seq(0,200,by=0.5)
+val <- c()
+for (i in t){
+print(i)
+for (j in d){
+val <- append(val,length(R2[which(R2[,1]==j&R2[,2]<=i),2])/1000)}}
+data2 <- expand.grid(X=d,Y=t)
+data2$Z <- val
+data2[length(d)*length(t)+1,] <-c(1000,1000,1)
 
-# Hetero exact
-R1 <- read.csv("RESULTS-HETEROEXACT.csv")[,2:3]
+library("ggplot2")
+ggplot(data2,aes(X,Y,fill=Z))+
+geom_tile()+
+scale_fill_gradientn(colours=rainbow(5)) +
+theme(panel.background=element_blank(),axis.line = element_line(colour = "black"))+
+scale_x_continuous(limits=c(0, 100), expand = c(0, 0)) +
+scale_y_continuous(limits=c(50, 200), expand = c(0, 0))+
+labs(x="Dose",y="Time in Hours",fill="Probability")
+
+pburrNEW <- function(x,a,b,T){(1+(T/x)^(a)*exp((T-x)/b))^(-1)}
+tdr1 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0/Y+k1)*X),start=list(k0=1,k1=1),data=data2,control = nls.control(maxiter = 1000))
+tdr2 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y^(-k2)+k1)*X),start=list(k0=1,k1=1,k2=1),data=data2,control = nls.control(maxiter = 1000))
+tdr3 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y+k1)*X),start=list(k0=1,k1=1),data=data2,control = nls.control(maxiter = 1000))
+tdr4 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0/Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data2,control = nls.control(maxiter = 1000))
+tdr5 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y^(-j2)+j1))^(-a),start=list(a=1,j0=1,j1=1,j2=1),data=data2,control = nls.control(maxiter = 1000))
+tdr6 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data2,control = nls.control(maxiter = 1000))
+tdr7 <- minpack.lm::nlsLM(Z~code(dose=X,a=q1,b=q2,y=q3,d50=q4)*pburrNEW(x=Y,a=q5,b=q6,T=q7*d^(-q8)+q9),start=list(q1=1,q2=1,q3=1,q4=10,q5=1,q6=1,q7=1,q8=1,q9=1),data=data2,control = nls.control(maxiter = 1000))
+
+# moment calculations
+m1 <- c()
+m2 <- c()
+m3 <- c()
+m4 <- c()
+for (i in 1:500){
+times <- R2[which(R2[,1]==i),2]
+m1 <- append(m1,mean(times))
+m2 <- append(m2,var(times))
+m3 <- append(m3,PerformanceAnalytics::skewness(times))
+m4 <- append(m4,PerformanceAnalytics::kurtosis(times,method="moment"))
+}
+m1 <- m1/24
+sd <- (m2^0.5)/24
+
+plot(m3,col="blue",lwd=2,ylim=c(0,6),type="l",xlab="Deposited dose",ylab="Moments for model B",main="First four moments of the dose-dependent incubation period")
+lines(log(m4),col="green",lwd=2)
+lines(sd,type="l",lwd=2,col="red")
+lines(m1,lwd=2)
+legend("topright",col=c("black","red","blue","green"),legend=c("mean","log(standard deviation)","skewness","log(kurtosis)"),lwd=2)
+
+
+# Elbow method
+
+summary_matrix <- as.matrix(data.frame(m1,m2,m3,m4))
+# Install and load necessary packages
+library(cluster)
+
+# Compute hierarchical clustering
+hc <- hclust(dist(summary_matrix), method = "ward.D2")
+# Function to compute WCSS
+calculate_wcss <- function(k) {
+  clusters_k <- cutree(hc, k)
+  clusters_list <- split(summary_matrix, clusters_k)
+  wcss <- sum(sapply(clusters_list, function(cluster) {
+    sum(dist(cluster)^2)
+  }))
+  return(wcss)
+}
+
+# Compute WCSS for a range of k
+k_values <- 2:10
+wcss_values <- sapply(k_values, calculate_wcss)
+
+# Plot the Elbow Method
+plot(k_values, wcss_values, type = "b", pch = 19, xlab = "Number of Clusters", ylab = "Within-Cluster Sum of Squares (WCSS)", main = "Elbow Method for Optimal k")
+
+clusters <- cutree(hc, k = 3)
+low <- c()
+for (i in which(clusters==1)){
+low <- append(low,R2[which(R2[,1]==i),2])
+}
+medium <- c()
+for (i in which(clusters==2)){
+medium <- append(medium,R2[which(R2[,1]==i),2])
+}
+high <- c()
+for (i in which(clusters==3)){
+high <- append(high,R2[which(R2[,1]==i),2])
+}
+dens1 <- density(low)
+dens2 <- density(medium)
+dens3 <- density(high)
+plot(dens1,lwd=2,type="l",xlim=c(60,200),ylim=c(0,0.1),xlab="Time in hours",main="Clustered dose-dependent incubation-period distributions")
+lines(dens2,lwd=2,col="red")
+lines(dens3,lwd=2,col="green")
+legend("topright",lwd=2,col=c("black","red","green"),legend=c("low-dose","medium-dose","high-dose"))
+
+low_dist_norm <- fitdistrplus::fitdist(low/24,"norm",method="mle")
+low_dist_lnorm <- fitdistrplus::fitdist(low/24,"lnorm",method="mle")
+low_dist_gamma <- fitdistrplus::fitdist(low/24,"gamma",method="mle")
+low_dist_weibull <- fitdistrplus::fitdist(low/24,"weibull",method="mle")
+low_dist_burr <- fitdistrplus::fitdist(low/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
+med_dist_norm <- fitdistrplus::fitdist(medium/24,"norm",method="mle")
+med_dist_lnorm <- fitdistrplus::fitdist(medium/24,"lnorm",method="mle")
+med_dist_gamma <- fitdistrplus::fitdist(medium/24,"gamma",method="mle")
+med_dist_weibull <- fitdistrplus::fitdist(medium/24,"weibull",method="mle")
+med_dist_burr <- fitdistrplus::fitdist(medium/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
+high_dist_norm <- fitdistrplus::fitdist(high/24,"norm",method="mle")
+high_dist_lnorm <- fitdistrplus::fitdist(high/24,"lnorm",method="mle")
+high_dist_gamma <- fitdistrplus::fitdist(high/24,"gamma",method="mle")
+high_dist_weibull <- fitdistrplus::fitdist(high/24,"weibull",method="mle")
+high_dist_burr <- fitdistrplus::fitdist(high/24,"burrNEW",method="mle",start=list(a=0.5,b=0.5,T=5))
+AIC(low_dist_norm)
+AIC(low_dist_lnorm)
+AIC(low_dist_gamma)
+AIC(low_dist_weibull)
+AIC(low_dist_burr)
+AIC(med_dist_norm)
+AIC(med_dist_lnorm)
+AIC(med_dist_gamma)
+AIC(med_dist_weibull)
+AIC(med_dist_burr)
+AIC(high_dist_norm)
+AIC(high_dist_lnorm)
+AIC(high_dist_gamma)
+AIC(high_dist_weibull)
+AIC(high_dist_burr)
+
+# Hetero random
+R4 <- read.csv("RESULTS-HETERORANDOM.csv")[,2:3]
 dose <- seq(1,500,by=1)
-prob <- unname(table(R1[,1]))/1000
+prob <- unname(table(R4[,1]))/1000
 plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model A",yaxt="n")
 axis(2, at = c(0,0.5,1), labels = c(0,0.5,1.0))
 
@@ -167,8 +317,154 @@ dr1 <- minpack.lm::nlsLM(prob~1-exp(-log(2)*dose/d50),start=list(d50=1),control 
 dr2 <- minpack.lm::nlsLM(prob~1-gsl::hyperg_1F1(a,a+b,-dose),start=list(a=1,b=1),control = nls.control(maxiter = 1000))
 dr3 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)),start=list(a=1,d50=1),control = nls.control(maxiter = 1000))
 dr4 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))),start=list(a=1,b=1,d50=12),control = nls.control(maxiter = 1000))
+dr5 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))*(exp(y*d50)-1)/(exp(y*dose)-1)),start=list(a=0.5,b=0.5,y=0.5,d50=10))
 
 aic1 <- AIC(dr1)
 aic2 <- AIC(dr2)
 aic3 <- AIC(dr3)
 aic4 <- AIC(dr4)
+aic5 <- AIC(dr5)
+
+d <- seq(1,500,by=1)
+t <- seq(0,300,by=0.5)
+val <- c()
+for (i in t){
+print(i)
+for (j in d){
+val <- append(val,length(R4[which(R4[,1]==j&R4[,2]<=i),2])/1000)}}
+data4 <- expand.grid(X=d,Y=t)
+data4$Z <- val
+data4[length(d)*length(t)+1,] <-c(1000,1000,1)
+
+library("ggplot2")
+ggplot(data4,aes(X,Y,fill=Z))+
+geom_tile()+
+scale_fill_gradientn(colours=rainbow(5)) +
+theme(panel.background=element_blank(),axis.line = element_line(colour = "black"))+
+scale_x_continuous(limits=c(0, 100), expand = c(0, 0)) +
+scale_y_continuous(limits=c(50, 300), expand = c(0, 0))+
+labs(x="Dose",y="Time in Hours",fill="Probability")
+
+tdr1 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0/Y+k1)*X),start=list(k0=1,k1=1),data=data4,control = nls.control(maxiter = 1000))
+tdr2 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y^(-k2)+k1)*X),start=list(k0=1,k1=1,k2=1),data=data4,control = nls.control(maxiter = 1000))
+tdr3 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y+k1)*X),start=list(k0=1,k1=1),data=data4,control = nls.control(maxiter = 1000))
+tdr4 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0/Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data4,control = nls.control(maxiter = 1000))
+tdr5 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y^(-j2)+j1))^(-a),start=list(a=1,j0=1,j1=1,j2=1),data=data4,control = nls.control(maxiter = 1000))
+tdr6 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data4,control = nls.control(maxiter = 1000))
+tdr7 <- minpack.lm::nlsLM(Z~code(dose=X,a=q1,b=q2,y=q3,d50=q4)*pburrNEW(x=Y,a=q5,b=q6,T=q7*d^(-q8)+q9),start=list(q1=1,q2=1,q3=1,q4=10,q5=1,q6=1,q7=1,q8=1,q9=1),data=data4,control = nls.control(maxiter = 1000))
+
+# moment calculations
+m1 <- c()
+m2 <- c()
+m3 <- c()
+m4 <- c()
+for (i in 1:500){
+times <- R4[which(R4[,1]==i),2]
+m1 <- append(m1,mean(times))
+m2 <- append(m2,var(times))
+m3 <- append(m3,PerformanceAnalytics::skewness(times))
+m4 <- append(m4,PerformanceAnalytics::kurtosis(times,method="moment"))
+}
+m1 <- m1/24
+sd <- (m2^0.5)/24
+
+plot(m3,col="blue",lwd=2,ylim=c(0,20),type="l",xlab="Deposited dose",ylab="Moments for model C",main="First four moments of the dose-dependent incubation period")
+lines(log(m4),col="green",lwd=2)
+lines(sd,type="l",lwd=2,col="red")
+lines(m1,lwd=2)
+legend("topright",col=c("black","red","blue","green"),legend=c("mean","log(standard deviation)","skewness","log(kurtosis)"),lwd=2)
+
+
+# Elbow method
+
+summary_matrix <- as.matrix(data.frame(m1,m2,m3,m4))
+# Install and load necessary packages
+library(cluster)
+
+# Compute hierarchical clustering
+hc <- hclust(dist(summary_matrix), method = "ward.D2")
+# Function to compute WCSS
+calculate_wcss <- function(k) {
+  clusters_k <- cutree(hc, k)
+  clusters_list <- split(summary_matrix, clusters_k)
+  wcss <- sum(sapply(clusters_list, function(cluster) {
+    sum(dist(cluster)^2)
+  }))
+  return(wcss)
+}
+
+# Compute WCSS for a range of k
+k_values <- 2:10
+wcss_values <- sapply(k_values, calculate_wcss)
+
+# Plot the Elbow Method
+plot(k_values, wcss_values, type = "b", pch = 19, xlab = "Number of Clusters", ylab = "Within-Cluster Sum of Squares (WCSS)", main = "Elbow Method for Optimal k")
+
+clusters <- cutree(hc, k = 4)
+low <- c()
+for (i in which(clusters==1)){
+low <- append(low,R4[which(R4[,1]==i),2])
+}
+medium1 <- c()
+for (i in which(clusters==2)){
+medium1 <- append(medium1,R4[which(R4[,1]==i),2])
+}
+medium2 <- c()
+for (i in which(clusters==3)){
+medium2 <- append(medium2,R4[which(R4[,1]==i),2])
+}
+high <- c()
+for (i in which(clusters==4)){
+high <- append(high,R4[which(R4[,1]==i),2])
+}
+dens1 <- density(low)
+dens2 <- density(medium1)
+dens3 <- density(medium2)
+dens3 <- density(high)
+plot(dens1,lwd=2,type="l",xlim=c(0,200),ylim=c(0,0.1),xlab="Time in hours",main="Clustered dose-dependent incubation-period distributions")
+lines(dens2,lwd=2,col="red")
+lines(dens4,lwd=2,col="green")
+lines(dens3,lwd=2,col="blue")
+legend("topright",lwd=2,col=c("black","red","blue","green"),legend=c("low-dose","medium-dose 1","medium-dose 2","high-dose"))
+
+
+low_dist_norm <- fitdistrplus::fitdist(low/24,"norm",method="mle")
+low_dist_lnorm <- fitdistrplus::fitdist(low/24,"lnorm",method="mle")
+low_dist_gamma <- fitdistrplus::fitdist(low/24,"gamma",method="mle")
+low_dist_weibull <- fitdistrplus::fitdist(low/24,"weibull",method="mle")
+low_dist_burr <- fitdistrplus::fitdist(low/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
+med1_dist_norm <- fitdistrplus::fitdist(medium1/24,"norm",method="mle")
+med1_dist_lnorm <- fitdistrplus::fitdist(medium1/24,"lnorm",method="mle")
+med1_dist_gamma <- fitdistrplus::fitdist(medium1/24,"gamma",method="mle")
+med1_dist_weibull <- fitdistrplus::fitdist(medium1/24,"weibull",method="mle")
+med1_dist_burr <- fitdistrplus::fitdist(medium1/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
+med2_dist_norm <- fitdistrplus::fitdist(medium2/24,"norm",method="mle")
+med2_dist_lnorm <- fitdistrplus::fitdist(medium2/24,"lnorm",method="mle")
+med2_dist_gamma <- fitdistrplus::fitdist(medium2/24,"gamma",method="mle")
+med2_dist_weibull <- fitdistrplus::fitdist(medium2/24,"weibull",method="mle")
+med2_dist_burr <- fitdistrplus::fitdist(medium2/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
+high_dist_norm <- fitdistrplus::fitdist(high/24,"norm",method="mle")
+high_dist_lnorm <- fitdistrplus::fitdist(high/24,"lnorm",method="mle")
+high_dist_gamma <- fitdistrplus::fitdist(high/24,"gamma",method="mle")
+high_dist_weibull <- fitdistrplus::fitdist(high/24,"weibull",method="mle")
+high_dist_burr <- fitdistrplus::fitdist(high/24,"burrNEW",method="mle",start=list(a=10,b=5,T=5))
+AIC(low_dist_norm)
+AIC(low_dist_lnorm)
+AIC(low_dist_gamma)
+AIC(low_dist_weibull)
+AIC(low_dist_burr)
+AIC(med1_dist_norm)
+AIC(med1_dist_lnorm)
+AIC(med1_dist_gamma)
+AIC(med1_dist_weibull)
+AIC(med1_dist_burr)
+AIC(med2_dist_norm)
+AIC(med2_dist_lnorm)
+AIC(med2_dist_gamma)
+AIC(med2_dist_weibull)
+AIC(med2_dist_burr)
+AIC(high_dist_norm)
+AIC(high_dist_lnorm)
+AIC(high_dist_gamma)
+AIC(high_dist_weibull)
+AIC(high_dist_burr)
