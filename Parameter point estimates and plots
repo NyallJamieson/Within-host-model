@@ -7,8 +7,8 @@ a <- nls(dep~C/(1+(C-1)*exp(-w*(ind-1))),data=yourdata,start=list(C=100,w=0.2))
 g <- function(t,pars){(t>=0 & t<=1)*1+(t>1)*pars[1]/(1+(pars[1]-1)*exp(-pars[2]*(t-1)))}
 plot(ind,dep,xlab="Time in hours",ylab="Intracellular Legionella per macrophage",main="Intracellular growth of Legionella",ylim=c(0,200))
 lines(t,g(t,c(177.9530,0.1924)),col="red",lwd=2)
-lines(t,g(t,c(177.9530+1.96*9.08241,0.19242+1.96*0.01391)),lwd=1)
-lines(t,g(t,c(177.9530-1.96*9.08241,0.19242-1.96*0.01391)),lwd=1)
+lines(t,g(t,c(177.9530+1.96*9.08241,0.19242+1.96*0.01391)),lwd=2)
+lines(t,g(t,c(177.9530-1.96*9.08241,0.19242-1.96*0.01391)),lwd=2)
 A <- coef(a)[1]
 w <- coef(a)[2]
 
@@ -40,7 +40,6 @@ time <- c(2,24,48,72)
 logdose <- log(c(13584.15,588828.58,11207102.05,82907236.06))
 L0 <- 10^5
 yourdata2 <- data.frame(time,logdose)
-plot(time,logdose)
 
 ab_model <- minpack.lm::nlsLM(logdose~log(L0)-0.5*log((lambda-gamma)^2+4*lambda*Pi*gamma*G)+log(0.5*(lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))-0.5*(lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))),start=list(gamma=5,Pi=0.5),lower=c(0,0))
 L <- function(time,gamma=gamma,Pi=Pi){log(L0)-0.5*log((lambda-gamma)^2+4*lambda*Pi*gamma*G)+log(0.5*(lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))-0.5*(lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)))}
@@ -98,10 +97,19 @@ C_lower <- C-1.96*sqrt(se^2+sigma^2)
 C_upper <- C+1.96*sqrt(se^2+sigma^2)
 
 x3 <- seq(5,13,by=1)
-plot(log(d3),t3,xlab="Log dose",ylab="Time to illness",main="Time for illness in guinea pigs",pch=19,col="black")
+plot(log(d3),t3,xlab="Log dose",ylab="Time to illness",main="Time for illness in guinea pigs",pch=19,col="black",cex=2.4)
 lines(x3,-x3/x1+C,col="red",lwd=2)
 lines(x3,-x3/x1+C_lower,col="black",lwd=2)
 lines(x3,-x3/x1+C_upper,col="black",lwd=2)
+text(8.29404964010203+0.01,24+0.1,"2",col="yellow")
+text(10.8197782844103+0.01,24+0.1,"1",col="yellow")
+text(12.8992198260901+0.03,24+0.1,"9",col="yellow")
+text(8.29404964010203+0.01,48+0.1,"7",col="yellow")
+text(10.8197782844103+0.01,48+0.1,"3",col="yellow")
+text(12.8992198260901+0.03,48+0.1,"3",col="yellow")
+text(5.29831736654804+0.02,72+0.1,"5",col="yellow")
+text(5.29831736654804+0.02,96+0.1,"5",col="yellow")
+text(8.29404964010203+0.01,72+0.1,"1",col="yellow")
 
 
 # phi
