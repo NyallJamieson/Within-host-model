@@ -37,15 +37,15 @@ legend("bottomright",lwd=2,legend=c("Exponential","Gamma","Burr"),col=c("black",
 # alpha and beta
 
 time <- c(2,24,48,72)
-dose <- c(13584.15,588828.58,11207102.05,82907236.06)
-L0 <- 10^6
-yourdata2 <- data.frame(time,dose)
+logdose <- log(c(13584.15,588828.58,11207102.05,82907236.06))
+L0 <- 10^5
+yourdata2 <- data.frame(time,logdose)
+plot(time,logdose)
 
-L <- function(time,a=alpha,b=beta){log(L0)+log(0.5*(h-a-b+((h-a-b)^2+4*h*a*G)^0.5))-log(((h-a-b)^2+4*h*a*G)^0.5)-0.5*time*(h+a+b-((h-a-b)^2+4*h*a*G)^0.5)}
+ab_model <- minpack.lm::nlsLM(logdose~log(L0)-0.5*log((lambda-gamma)^2+4*lambda*Pi*gamma*G)+log(0.5*(lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))-0.5*(lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))),start=list(gamma=5,Pi=0.5),lower=c(0,0))
+L <- function(time,gamma=gamma,Pi=Pi){log(L0)-0.5*log((lambda-gamma)^2+4*lambda*Pi*gamma*G)+log(0.5*(lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))-0.5*(lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)))}
+
 reps <- 10000
-ab_model <- minpack.lm::nlsLM(logdose~log(L0)+log(0.5*(lambda-alpha-beta+((lambda-alpha-beta)^2+4*lambda*alpha*G)^0.5))-log(((lambda-alpha-beta)^2+4*lambda*alpha*G)^0.5)-0.5*time*(lambda+alpha+beta-((lambda-alpha-beta)^2+4*lambda*alpha*G)^0.5),data=yourdata2,algorithm="port",start=list(alpha=0.2,beta=0.2),lower=c(0,0),control = nls.control(maxiter = 1000))
-alpha <- coef(ab_model)[1]
-beta <- coef(ab_model)[2]
 ab <- data.frame(MASS::mvrnorm(n=reps,mu=c(coef(ab_model)[1],coef(ab_model)[2]),Sigma=matrix(c(vcov(ab_model)[1],vcov(ab_model)[2],vcov(ab_model)[3],vcov(ab_model)[4]),2,2)))
 data <- data.frame(matrix(NA,nrow=72,ncol=0))
 
@@ -53,9 +53,8 @@ ab2 <- ab |> dplyr::filter(ab[,1]>0 & ab[,2]>0)
 print(nrow(ab2))
 for (i in 1:nrow(ab2)){
 print(i)
-data <- data.frame(data,unname(L(t=seq(1,72,by=1),a=ab2[i,1],b=ab2[i,2])))
+data <- data.frame(data,unname(L(t=seq(1,72,by=1),gamma=ab2[i,1],Pi=ab2[i,2])))
 }
-
 lwr <- c()
 upr <- c()
 for (i in 1:72){
@@ -65,9 +64,17 @@ upr <- append(upr,quantile(na.omit(as.numeric(data[i,])),p=0.975))
 }
 
 plot(time,logdose,ylim=c(7,20),xlab="Time in hours",ylab="Log extracellular Legionella population",main="Log extracellular Legionella population")
-lines(L(seq(1,72,by=1),a=coef(ab_model)[1],b=coef(ab_model)[2]),col="red",lwd=2)
+lines(L(seq(1,72,by=1),gamma=coef(ab_model)[1],Pi=coef(ab_model)[2]),col="red",lwd=2)
 lines(lwr,col="black",lwd=2)
 lines(upr,col="black",lwd=2)
+
+# model based on only the firt data
+yourdata2_short <- yourdata2[1:3,]
+ab_model2 <- minpack.lm::nlsLM(logdose~log(L0)-0.5*log((lambda-gamma)^2+4*lambda*Pi*gamma*G)+log(0.5*(lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))-0.5*(lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))),start=list(gamma=5,Pi=0.5),lower=c(0,0),data=yourdata2_short)
+lines(L(seq(1,72,by=1),gamma=coef(ab_model2)[1],Pi=coef(ab_model2)[2]),col="blue",lwd=2)
+
+
+
 
 # C
 d3 <- c(4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,5*10^4,5*10^4,5*10^4,5*10^4,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2)
