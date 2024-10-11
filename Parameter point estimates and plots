@@ -44,6 +44,8 @@ plot(time,logdose)
 
 ab_model <- minpack.lm::nlsLM(logdose~log(L0)-0.5*log((lambda-gamma)^2+4*lambda*Pi*gamma*G)+log(0.5*(lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))-0.5*(lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))),start=list(gamma=5,Pi=0.5),lower=c(0,0))
 L <- function(time,gamma=gamma,Pi=Pi){log(L0)-0.5*log((lambda-gamma)^2+4*lambda*Pi*gamma*G)+log(0.5*(lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))-0.5*(lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)))}
+alpha <- unname(coef(ab_model)[1]*coef(ab_model)[2])
+beta <- unname(coef(ab_model)[1]*(1-coef(ab_model)[2]))
 
 reps <- 10000
 ab <- data.frame(MASS::mvrnorm(n=reps,mu=c(coef(ab_model)[1],coef(ab_model)[2]),Sigma=matrix(c(vcov(ab_model)[1],vcov(ab_model)[2],vcov(ab_model)[3],vcov(ab_model)[4]),2,2)))
@@ -90,9 +92,17 @@ vals <- log(d3)/x1
 surv_obj <- Surv(time = t_L+vals, time2 = t_R+vals, type = "interval2")
 model <- survreg(surv_obj ~ 1, data = Data, dist = "gaussian")
 C <- unname(coef(model))
+se <- unname(predict(model,se.fit=TRUE)$se.fit[1])
+sigma <- model$scale
+C_lower <- C-1.96*sqrt(se^2+sigma^2)
+C_upper <- C+1.96*sqrt(se^2+sigma^2)
 
-plot(log(d3),t3,xlab="Log dose",ylab="Time to illness",main="Time for illness in guinea pigs")
-lines(x,-x/x1+C,col="red",lwd=2)
+x3 <- seq(5,13,by=1)
+plot(log(d3),t3,xlab="Log dose",ylab="Time to illness",main="Time for illness in guinea pigs",pch=19,col="black")
+lines(x3,-x3/x1+C,col="red",lwd=2)
+lines(x3,-x3/x1+C_lower,col="black",lwd=2)
+lines(x3,-x3/x1+C_upper,col="black",lwd=2)
+
 
 # phi
 MPPDdepos <- c(0.2389,0.2284,0.2515,0.2226,0.2606,0.2391,0.2562,0.2657,0.2384,0.252,0.2523,0.2464,0.2531,0.2502,0.2433,0.2587,0.2504,0.2435,0.2767,0.2492,0.2585,0.2384,0.2688,0.2658,0.236,0.2677,0.2349,0.25,0.2658,0.2555,0.2452,0.2535,0.2543,0.2686,0.2218,0.2569,0.2594,0.2504,0.2781,0.2564,0.2638,0.2525,0.2221,0.2147,0.2607,0.2263,0.2396,0.2518,0.2558,0.2644,0.2118,0.2497,0.2601,0.2686,0.2662,0.249,0.2402,0.2538,0.2567,0.2565,0.25,0.2306,0.2533,0.2665,0.2164,0.2467,0.2501,0.235,0.2633,0.2404,0.2585,0.2655,0.2575,0.2674,0.2234,0.263,0.2401,0.2429,0.2384,0.2418,0.2266,0.2496,0.2735,0.2414,0.2473,0.2349,0.2444,0.2448,0.2564,0.2571,0.2641,0.2383,0.1927,0.2544,0.2653,0.2162,0.2665,0.2349,0.2476,0.2456)
