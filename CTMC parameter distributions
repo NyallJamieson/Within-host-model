@@ -86,7 +86,7 @@ t_L <- t3-24
 t_R <- t3
 
 C_vec <- data.frame(matrix(ncol = 1, nrow = 0))
-colnames(C_vec="C_dist")
+colnames(C_vec)="C_dist"
 
 part3 <- function(y){
 x2 <- x1[y]
@@ -97,19 +97,20 @@ Data <- data.frame(left,right)
 # Create an interval-censored survival object
 surv_obj <- survival::Surv(time = left, time2 = right, type = "interval2")
 model <- survival::survreg(surv_obj ~ 1, data = Data, dist = "gaussian")
-return(rnorm(n=1,mean=coef(model),sd=model$var[1,1]^0.5))
+return(rnorm(n=100,mean=unname(coef(model)),sd=unname(predict(model,se.fit=TRUE)$se.fit[1])))
 }
 C <- unlist(parallel::mclapply(1:length(x1),part3,mc.cores=parallel::detectCores()))
 
 Repeated <- Repeated |> tidyr::drop_na()
-Repeated <- Repeated |> dplyr::mutate("C"=C[which(!is.na(C))])
-results2 <- Repeated |> dplyr::filter(C>0)
+Repeated <- Repeated[which(!is.na(C)),]
+results2 <- Repeated
+results3 <- data.frame(results2,na.omit(C))
 
-theta <- sqrt((results2[,4]-results2[,1]-results2[,2])^2+4*results2[,4]*results2[,1]*results2[,3])
-x1 <- 0.5*(-results2[,4]-results2[,1]-results2[,2]+theta)
-phi <- rbeta(n=nrow(results2),shape=191.18,shape2=577.26)
-T <- phi*(x1+results2[,4])*exp(results2[,7]*x1)/theta
+theta <- sqrt((results3[,4]-results3[,1]-results3[,2])^2+4*results3[,4]*results3[,1]*results3[,3])
+x1 <- 0.5*(-results3[,4]-results3[,1]-results3[,2]+theta)
+phi <- rbeta(n=nrow(results3),shape=191.18,shape2=577.26)
+T <- phi*(x1+results3[,4])*exp(results3[,7]*x1)/theta
 
-results2 <- results2 |> dplyr::mutate("phi"=phi)
-results2 <- results2 |> dplyr::mutate("T"=T)
-results2 <- results2 |> tidyr::drop_na()
+results3 <- results3 |> dplyr::mutate("phi"=phi)
+results3 <- results3 |> dplyr::mutate("T"=T)
+results3 <- results3 |> tidyr::drop_na()
