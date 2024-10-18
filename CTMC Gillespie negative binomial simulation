@@ -17,7 +17,7 @@ MODEL.onestep <- function(x,params){
                transitions <- list(
                               successfulPHA <- c(-1,1),
                               failedPHA <- c(-1,0),
-                              bursted <- c(rnbinom(n=1,mu=62.86706,size=32.25695),-1)
+                              bursted <- c(rnbinom(n=1,mu=62.792,size=32.072),-1)
                )
                event <- sample.int(n=3,size=1,prob=rates/total.rates)
                x+c(tau,transitions[[event]])
@@ -28,7 +28,7 @@ illtime <- c()
 varName1 <- "illcount"
 varName2 <- "illtime"
 
-MODEL.simul <- function(y,maxstep=10000000,threshold=36569){
+MODEL.simul <- function(y,maxstep=10000000,threshold=50661){
 	       dose <- xstart["L"]
 	       x <- xstart
                illcount.copy <- get(varName1)
@@ -46,9 +46,11 @@ MODEL.simul <- function(y,maxstep=10000000,threshold=36569){
              }
 }
 
-params <- c(alpha=0.02588503,beta=0.4136584,lambda=0.04050593)
+
+params <- c(alpha=0.08944449,beta=1.088102,lambda=0.04050593)
 results <- data.frame(matrix(ncol = 2, nrow = 0))
 colnames(results) <- c("L","time")
+
 
 for (i in 1:500){
 print(i)
