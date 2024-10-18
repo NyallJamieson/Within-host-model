@@ -28,7 +28,7 @@ illtime <- c()
 varName1 <- "illcount"
 varName2 <- "illtime"
 
-MODEL.simul <- function(y,maxstep=10000000,threshold=36569){
+MODEL.simul <- function(y,maxstep=10000000,threshold=50661){
 	       dose <- xstart["L"]
 	       x <- xstart
                illcount.copy <- get(varName1)
@@ -46,7 +46,7 @@ MODEL.simul <- function(y,maxstep=10000000,threshold=36569){
              } else {return(c(NA,NA))}
 }
 
-params <- c(alpha=0.02588503,beta=0.4136584,lambda=0.04050593)
+params <- c(alpha=0.08944449,beta=1.088102,lambda=0.04050593)
 results <- data.frame(matrix(ncol = 2, nrow = 0))
 colnames(results) <- c("L","time")
 
