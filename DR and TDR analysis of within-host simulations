@@ -9,10 +9,15 @@ prob <- unname(table(R1[,1]))/1000
 plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model A",yaxt="n")
 axis(2, at = c(0,0.5,1), labels = c(0,0.5,1.0))
 
+# dr1 is exponential dr model
 dr1 <- minpack.lm::nlsLM(prob~1-exp(-log(2)*dose/d50),start=list(d50=1),control = nls.control(maxiter = 1000))
+# dr2 is exact beta-poisson dr model
 dr2 <- minpack.lm::nlsLM(prob~1-gsl::hyperg_1F1(a,a+b,-dose),start=list(a=1,b=1),control = nls.control(maxiter = 1000))
+# dr3 is hill dr model
 dr3 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)),start=list(a=1,d50=1),control = nls.control(maxiter = 1000))
+# dr4 is burr 1 dr model
 dr4 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))),start=list(a=1,b=1,d50=12),control = nls.control(maxiter = 1000))
+# dr5 is burr 2 dr model
 dr5 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))*(exp(y*d50)-1)/(exp(y*dose)-1)),start=list(a=0.5,b=0.5,y=0.5,d50=10))
 
 code <- function(dose,a,b,y,d50){1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))*(exp(y*d50)-1)/(exp(y*dose)-1))}
