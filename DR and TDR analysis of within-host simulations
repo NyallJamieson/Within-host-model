@@ -21,7 +21,7 @@ dr4 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))),start=list
 dr5 <- minpack.lm::nlsLM(prob~1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))*(exp(y*d50)-1)/(exp(y*dose)-1)),start=list(a=0.5,b=0.5,y=0.5,d50=10))
 
 code <- function(dose,a,b,y,d50){1/(1+(d50/dose)^(a)*exp(-b*(dose-d50))*(exp(y*d50)-1)/(exp(y*dose)-1))}
-lines(seq(1,70,by=1),code(dose=seq(1,70,by=1),a=coef(dr5)[1],b=coef(dr5)[2],c=coef(dr5)[3],d50=coef(dr5)[4]))
+lines(seq(1,70,by=1),code(dose=seq(1,70,by=1),a=coef(dr5)[1],b=coef(dr5)[2],y=coef(dr5)[3],d50=coef(dr5)[4]))
 
 aic1 <- AIC(dr1)
 aic2 <- AIC(dr2)
