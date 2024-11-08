@@ -3,7 +3,7 @@ load("ker_beta.RData")
 load("ker_G.RData")
 load("ker_lambda.RData")
 load("ker_A.RData")
-load("ker_w.RData")
+load("ker_omega.RData")
 load("ker_C.RData")
 load("ker_phi.RData")
 load("ker_T.RData")
@@ -43,10 +43,10 @@ sampled_values <- approx(cdf_A,ker_A$x,xout=u)$y
 return(sampled_values)
 }
 
-cdf_w <- cumsum(ker_w$y)/sum(ker_w$y)
-sample_from_dens_w <- function(n){
+cdf_omega <- cumsum(ker_omega$y)/sum(ker_omega$y)
+sample_from_dens_omega <- function(n){
 u <- runif(n)
-sampled_values <- approx(cdf_w,ker_w$x,xout=u)$y
+sampled_values <- approx(cdf_omega,ker_omega$x,xout=u)$y
 return(sampled_values)
 }
 
