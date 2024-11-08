@@ -73,6 +73,11 @@ m4 <- append(m4,PerformanceAnalytics::kurtosis(times,method="moment"))
 m1 <- m1/24
 sd <- (m2^0.5)/24
 
+# mean at ID50 (9 bacteria)
+m <- mean(R1[which(R1[,1]==9),2])
+sd <- sd(R1[which(R1[,1]==9),2])
+ci <- c(m-1.96*sd,m+1.96*sd)/24
+
 plot(m3,col="blue",lwd=2,ylim=c(0,6),type="l",xlab="Deposited dose",ylab="Moments for model A",main="First four moments of the dose-dependent incubation period")
 lines(log(m4),col="green",lwd=2)
 lines(sd,type="l",lwd=2,col="red")
@@ -251,6 +256,11 @@ m4 <- append(m4,PerformanceAnalytics::kurtosis(times,method="moment"))
 }
 m1 <- m1/24
 sd <- (m2^0.5)/24
+
+# mean at ID50 (9 bacteria)
+m <- mean(R2[which(R2[,1]==9),2])
+sd <- sd(R2[which(R2[,1]==9),2])
+ci <- c(m-1.96*sd,m+1.96*sd)/24
 
 plot(m3,col="blue",lwd=2,ylim=c(0,6),type="l",xlab="Deposited dose",ylab="Moments for model B",main="First four moments of the dose-dependent incubation period")
 lines(log(m4),col="green",lwd=2)
