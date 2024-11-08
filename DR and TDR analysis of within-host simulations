@@ -188,7 +188,7 @@ AIC(high_dist_burr)
 R2 <- read.csv("Results.NegBin.csv")[,2:3]
 dose <- seq(1,500,by=1)
 prob <- unname(table(R2[,1]))/1000
-plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model A",yaxt="n")
+plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model B",yaxt="n")
 axis(2, at = c(0,0.5,1), labels = c(0,0.5,1.0))
 
 dr1 <- minpack.lm::nlsLM(prob~1-exp(-log(2)*dose/d50),start=list(d50=1),control = nls.control(maxiter = 1000))
@@ -365,7 +365,7 @@ AIC(high_dist_burr)
 R4 <- read.csv("RESULTS-HETERORANDOM.csv")[,2:3]
 dose <- seq(1,500,by=1)
 prob <- unname(table(R4[,1]))/1000
-plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model A",yaxt="n")
+plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model C",yaxt="n")
 axis(2, at = c(0,0.5,1), labels = c(0,0.5,1.0))
 
 dr1 <- minpack.lm::nlsLM(prob~1-exp(-log(2)*dose/d50),start=list(d50=1),control = nls.control(maxiter = 1000))
