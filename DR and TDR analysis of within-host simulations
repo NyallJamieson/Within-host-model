@@ -3,7 +3,7 @@ dburrNEW <- function(x,a,b,T){(x/b+a)*(T/x)^(a)*exp((T-x)/b)/(x*(1+(T/x)^(a)*exp
 pburrNEW <- function(x,a,b,T){(1+(T/x)^(a)*exp((T-x)/b))^(-1)}
 
 # Constant
-R1 <- read.csv("RESULTS-CONSTANT.csv")[,2:3]
+R1 <- read.csv("Results.Constant.csv")[,2:3]
 dose <- seq(1,500,by=1)
 prob <- unname(table(R1[,1]))/1000
 plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model A",yaxt="n")
@@ -185,7 +185,7 @@ AIC(high_dist_burr)
 
 
 # Nb
-R2 <- read.csv("RESULTS_NEGBIN.csv")[,2:3]
+R2 <- read.csv("Results.NegBin.csv")[,2:3]
 dose <- seq(1,500,by=1)
 prob <- unname(table(R2[,1]))/1000
 plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model A",yaxt="n")
@@ -201,6 +201,7 @@ aic1 <- AIC(dr1)
 aic2 <- AIC(dr2)
 aic3 <- AIC(dr3)
 aic4 <- AIC(dr4)
+aic5 <- AIC(dr5)
 
 lines(seq(1,70,by=1),1-exp(-log(2)*seq(1,70,by=1)/coef(dr1)),lwd=2)
 lines(seq(1,70,by=1),1-gsl::hyperg_1F1(coef(dr2)[1],coef(dr2)[1]+coef(dr2)[2],-seq(1,70,by=1)),col="red",lwd=2)
