@@ -12,6 +12,13 @@ cdf_alpha <- cumsum(ker_alpha$y)/sum(ker_alpha$y)
 sample_from_dens_alpha <- function(n){
 u <- runif(n)
 sampled_values <- approx(cdf_alpha,ker_alpha$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+if (sum(is.na(sampled_values))>0){
+while (sum(is.na(sampled_values))>0){
+sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+}
+}
 return(sampled_values)
 }
 
@@ -19,6 +26,13 @@ cdf_beta <- cumsum(ker_beta$y)/sum(ker_beta$y)
 sample_from_dens_beta <- function(n){
 u <- runif(n)
 sampled_values <- approx(cdf_beta,ker_beta$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+if (sum(is.na(sampled_values))>0){
+while (sum(is.na(sampled_values))>0){
+sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+}
+}
 return(sampled_values)
 }
 
@@ -26,6 +40,13 @@ cdf_G <- cumsum(ker_G$y)/sum(ker_G$y)
 sample_from_dens_G <- function(n){
 u <- runif(n)
 sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+if (sum(is.na(sampled_values))>0){
+while (sum(is.na(sampled_values))>0){
+sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+}
+}
 return(sampled_values)
 }
 
@@ -33,6 +54,13 @@ cdf_lambda <- cumsum(ker_lambda$y)/sum(ker_lambda$y)
 sample_from_dens_lambda <- function(n){
 u <- runif(n)
 sampled_values <- approx(cdf_lambda,ker_lambda$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+if (sum(is.na(sampled_values))>0){
+while (sum(is.na(sampled_values))>0){
+sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+}
+}
 return(sampled_values)
 }
 
@@ -40,13 +68,27 @@ cdf_A <- cumsum(ker_A$y)/sum(ker_A$y)
 sample_from_dens_A <- function(n){
 u <- runif(n)
 sampled_values <- approx(cdf_A,ker_A$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+if (sum(is.na(sampled_values))>0){
+while (sum(is.na(sampled_values))>0){
+sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+}
+}
 return(sampled_values)
 }
 
 cdf_omega <- cumsum(ker_omega$y)/sum(ker_omega$y)
 sample_from_dens_omega <- function(n){
+sampled_values <- sampled_values[sampled_values>0]
 u <- runif(n)
 sampled_values <- approx(cdf_omega,ker_omega$x,xout=u)$y
+if (sum(is.na(sampled_values))>0){
+while (sum(is.na(sampled_values))>0){
+sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+}
+}
 return(sampled_values)
 }
 
@@ -54,6 +96,13 @@ cdf_C <- cumsum(ker_C$y)/sum(ker_C$y)
 sample_from_dens_C <- function(n){
 u <- runif(n)
 sampled_values <- approx(cdf_C,ker_C$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+if (sum(is.na(sampled_values))>0){
+while (sum(is.na(sampled_values))>0){
+sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+}
+}
 return(sampled_values)
 }
 
@@ -61,6 +110,13 @@ cdf_phi <- cumsum(ker_phi$y)/sum(ker_phi$y)
 sample_from_dens_phi <- function(n){
 u <- runif(n)
 sampled_values <- approx(cdf_phi,ker_phi$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+if (sum(is.na(sampled_values))>0){
+while (sum(is.na(sampled_values))>0){
+sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+}
+}
 return(sampled_values)
 }
 
@@ -68,6 +124,13 @@ cdf_T <- cumsum(ker_T$y)/sum(ker_T$y)
 sample_from_dens_T <- function(n){
 u <- runif(n)
 sampled_values <- approx(cdf_T,ker_T$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+if (sum(is.na(sampled_values))>0){
+while (sum(is.na(sampled_values))>0){
+sampled_values <- approx(cdf_G,ker_G$x,xout=u)$y
+sampled_values <- sampled_values[sampled_values>0]
+}
+}
 return(sampled_values)
 }
 
@@ -119,6 +182,8 @@ MODEL.simul <- function(y,maxstep=10000000){
                             k <- k+1
                             output[k,] <- x <- MODEL.onestep(x,params=p)}
              t <- output[k,1]
+	     if (is.na(x["time"])){
+		return(output)}
              if (x["L"]!=0){
                   return(c("L"=as.numeric(xstart["L"]),"time"=as.numeric(x["time"])))
              }
