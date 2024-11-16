@@ -1,0 +1,21 @@
+dose_M <- c(1,5,50,100)
+response_M <- c(0/4,1/4,8/8,8/8)
+muller_fit <- minpack.lm::nlsLM(response_M~1-exp(-a*dose_M),start=list(a=0.1))
+
+plot(dose_M,response_M,main="Dose-response for Legionnaires' disease",xlab="Deposited dose",ylab="Probability of symptom onset",lwd=2,ylim=c(0,1),xlim=c(0,100))
+
+doses <- seq(0,100,by=1)
+dr_A <- read.csv("Results.Constant.csv")[,2:3]
+dr_B <- read.csv("Results.NegBin.csv")[,2:3]
+dr_C <- read.csv("Results.Hetero.csv")[,2:3]
+
+R_A <- append(0,table(dr_A[,1])[1:100]/1000)
+R_B <- append(0,table(dr_B[,1])[1:100]/1000)
+R_C <- append(0,table(dr_C[,2])[1:100]/1000)
+
+lines(doses,1-exp(-0.06138*doses),lwd=2,col="black")
+lines(doses,1-exp(-(0.06138+0.0096)*doses),col="red",lty=2)
+lines(doses,1-exp(-(0.06138-0.0096)*doses),col="red",lty=2)
+lines(doses,R_A,col="green",lwd=2)
+lines(doses,R_B,col="blue",lwd=2)
+lines(doses,R_C,col="yellow",lwd=2)
