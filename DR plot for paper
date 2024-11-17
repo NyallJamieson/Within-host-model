@@ -10,9 +10,6 @@ dr_C <- read.csv("Results.Hetero.csv")[,2:3]
 R_A <- append(0,table(dr_A[,1])[1:100]/1000)
 R_B <- append(0,table(dr_B[,1])[1:100]/1000)
 R_C <- append(0,table(dr_C[,2])[1:100]/1000)
-lines(doses,R_A,col="green",lwd=2)
-lines(doses,R_B,col="blue",lwd=2)
-lines(doses,R_C,col="yellow",lwd=2)
 
 data <- data.frame(dose=c(1,5,50,100),ill=c(0,1,8,8),total=c(4,4,8,8))
 fit <- glm(cbind(ill,total-ill)~dose,family=binomial(link="cloglog"),data=data)
@@ -36,12 +33,24 @@ beta_hat <- exp(log_beta_hat)
 ci_lower <- exp(log_beta_hat - 1.96 * log_beta_se)[,1]  # Lower bound of 95% CI
 ci_upper <- exp(log_beta_hat + 1.96 * log_beta_se)[,1]  # Upper bound of 95% CI
 
+point_lower <- c()
+point_upper <- c()
+for (i in 1:4){
+ci <- binom.confint(success[i], trial[i], conf.level = 0.95, methods = "wilson")
+point_lower <- append(point_lower,ci$lower)
+point_upper <- append(point_upper,ci$upper)
+}
+
 plot(dose_M,response_M,main="Dose-response for Legionnaires' disease",xlab="Deposited dose",ylab="Probability of symptom onset",lwd=2,ylim=c(0,1),xlim=c(0,100))
+
 lines(doses,R_A,col="green",lwd=2)
 lines(doses,R_B,col="blue",lwd=2)
-lines(doses,R_C,col="yellow",lwd=2)
+# lines(doses,R_C,col="yellow",lwd=2)
 lines(doses,1-exp(-beta_hat*doses),lwd=2,col="black")
 lines(doses,1-exp(-ci_upper*doses),col="red",lty=2)
 lines(doses,1-exp(-ci_lower*doses),col="red",lty=2)
-
+for (i in 1:4){
+arrows(x0=dose_M[i], y0=point_lower[i], x1=dose_M[i], y1=point_upper[i], length=0.05, angle=90, code=3)
+}
+legend("bottomright",legend=c("Muller data [16]","Exponential DR model fitted to [16]","Exponential DR CI","Within-host model A simulation","Within-host model B simulation","Within-host model C simulation"),col=c("black","black","red","green","blue","yellow"),lty=c(NA,1,2,1,1,1),pch=c(1,NA,NA,NA,NA,NA),lwd=c(2,2,2,2,2,2),bty="n")
 
