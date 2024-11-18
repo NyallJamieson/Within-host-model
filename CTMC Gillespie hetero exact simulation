@@ -54,7 +54,7 @@ MODEL.simul <- function(y,maxstep=10000000){
  	     ab_model <- minpack.lm::nlsLM(logdose~log(L0)-0.5*log((lambda-gamma)^2+4*lambda*Pi*gamma*G)+log(0.5*(lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))-0.5*(lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))),start=list(gamma=5,Pi=0.5),lower=c(0,0))
  	     gamma_pi <- MASS::mvrnorm(n=1,mu=c(coef(ab_model)[1],coef(ab_model)[2]),Sigma=matrix(c(vcov(ab_model)[1],vcov(ab_model)[2],vcov(ab_model)[3],vcov(ab_model)[4]),2,2))
  	     alpha <- unname(gamma_pi[1]*gamma_pi[2])
- 	     beta <- unname(gamma_pi[1]*(1-gamma_pi[2])
+ 	     beta <- unname(gamma_pi[1]*(1-gamma_pi[2]))
 
 	     p <- c("lambda"=lambda,"alpha"=alpha,"beta"=beta,"G"=G)
 	     names(p) <- c("lambda","alpha","beta","G")
@@ -62,11 +62,21 @@ MODEL.simul <- function(y,maxstep=10000000){
 
 	     theta <- sqrt((h-alpha-beta)^2+4*h*alpha*G)
              x1 <- 0.5*(-h-alpha-beta+theta)
-	     dose3 <- c(4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,5*10^4,5*10^4,5*10^4,5*10^4,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2)
-	     time3 <- 24*c(1,1,1,1,1,1,1,1,1,2,2,2,1,2,2,2,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4)
-	     yourdata3 <- data.frame(time3,dose3)
-	     low_dose_dist <- nls(time3~C-log(dose3)/x1,data=yourdata3,start=list(C=100))
-	     C <- rnorm(n=1,mean=coef(low_dose_dist),sd=vcov(low_dose_dist)^0.5)
+
+d3 <- c(4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,4*10^5,5*10^4,5*10^4,5*10^4,5*10^4,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,4*10^3,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2,2*10^2)
+t3 <- 24*c(1,1,1,1,1,1,1,1,1,2,2,2,1,2,2,2,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4)
+t_L <- t3-24
+t_R <- t3
+theta <- sqrt((lambda-alpha-beta)^2+4*lambda*alpha*G)
+x1 <- 0.5*(-lambda-alpha-beta+theta)
+rhs <- log(d3)/x1
+Data <- data.frame(t_L,t_R,rhs)
+vals <- log(d3)/x1
+# Create an interval-censored survival object
+surv_obj <- survival::Surv(time = t_L+vals, time2 = t_R+vals, type = "interval2")
+model <- survival::survreg(surv_obj ~ 1, data = Data, dist = "gaussian")
+C <- rnorm(n=1,mean=unname(coef(model)),sd=sqrt((unname(predict(model,se.fit=TRUE)$se.fit[1]))^2+(model$scale)^2))
+
 	     phi <- rbeta(n=1,shape=191.18,shape2=577.26)
 	     threshold <- unname(phi*(x1+lambda)*exp(C*x1)/theta)
 
