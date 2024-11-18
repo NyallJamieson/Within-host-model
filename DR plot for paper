@@ -35,7 +35,7 @@ ci_upper <- exp(log_beta_hat + 1.96 * log_beta_se)[,1]  # Upper bound of 95% CI
 point_lower <- c()
 point_upper <- c()
 for (i in 1:4){
-ci <- binom.confint(success[i], trial[i], conf.level = 0.95, methods = "wilson")
+ci <- binom::binom.confint(success[i], trial[i], conf.level = 0.95, methods = "wilson")
 point_lower <- append(point_lower,ci$lower)
 point_upper <- append(point_upper,ci$upper)
 }
