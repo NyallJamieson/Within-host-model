@@ -3,7 +3,7 @@ lambda_dist <- read.csv("lambda_dist.csv")[,2]
 results <- data.frame(matrix(ncol = 2, nrow = 0))
 colnames(results) <- c("L","time")
 
-for (i in 1:500){
+for (i in 1:5){
 
 MODEL.onestep <- function(x,params){   
                alpha <- params["alpha"]
@@ -53,7 +53,13 @@ MODEL.simul <- function(y,maxstep=10000000){
 
  	     ab_model <- minpack.lm::nlsLM(logdose~log(L0)-0.5*log((lambda-gamma)^2+4*lambda*Pi*gamma*G)+log(0.5*(lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))-0.5*(lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))),start=list(gamma=5,Pi=0.5),lower=c(0,0))
  	     gamma_pi <- MASS::mvrnorm(n=1,mu=c(coef(ab_model)[1],coef(ab_model)[2]),Sigma=matrix(c(vcov(ab_model)[1],vcov(ab_model)[2],vcov(ab_model)[3],vcov(ab_model)[4]),2,2))
- 	     alpha <- unname(gamma_pi[1]*gamma_pi[2])
+ 	     if (min(gamma_pi)<0){
+	     while (min(gamma_pi)<0){
+	     ab_model <- minpack.lm::nlsLM(logdose~log(L0)-0.5*log((lambda-gamma)^2+4*lambda*Pi*gamma*G)+log(0.5*(lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma+((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))-0.5*(lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5)*exp(0.5*time*(-lambda-gamma-((lambda-gamma)^2+4*lambda*gamma*Pi*G)^0.5))),start=list(gamma=5,Pi=0.5),lower=c(0,0))
+ 	     gamma_pi <- MASS::mvrnorm(n=1,mu=c(coef(ab_model)[1],coef(ab_model)[2]),Sigma=matrix(c(vcov(ab_model)[1],vcov(ab_model)[2],vcov(ab_model)[3],vcov(ab_model)[4]),2,2))
+ 	     }
+	     }
+	     alpha <- unname(gamma_pi[1]*gamma_pi[2])
  	     beta <- unname(gamma_pi[1]*(1-gamma_pi[2]))
 
 	     p <- c("lambda"=lambda,"alpha"=alpha,"beta"=beta,"G"=G)
@@ -79,6 +85,7 @@ C <- rnorm(n=1,mean=unname(coef(model)),sd=sqrt((unname(predict(model,se.fit=TRU
 
 	     phi <- rbeta(n=1,shape=191.18,shape2=577.26)
 	     threshold <- unname(phi*(x1+lambda)*exp(C*x1)/theta)
+print(c(alpha,beta,lambda,G,C,phi,threshold))
 
              illcount.copy <- get(varName1)
              illtime.copy <- get(varName2)
@@ -96,8 +103,10 @@ C <- rnorm(n=1,mean=unname(coef(model)),sd=sqrt((unname(predict(model,se.fit=TRU
 
 print(i)
 xstart <- c(time=0,L=i,M=0)
-sim_results <- as.data.frame(na.omit(do.call(rbind,parallel::mclapply(1:1000,MODEL.simul,mc.cores=parallel::detectCores())),na.action="omit"))
+sim_results <- as.data.frame(na.omit(do.call(rbind,parallel::mclapply(1:1000,MODEL.simul,mc.cores=10)),na.action="omit"))
 sim_results[,1] <- as.numeric(sim_results[,1])
 sim_results[,2] <- as.numeric(sim_results[,2])
 
 results <- dplyr::bind_rows(results,sim_results)}
+
+# mc.cores=parallel::detectCores()
