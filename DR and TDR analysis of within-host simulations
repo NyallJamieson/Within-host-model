@@ -50,12 +50,12 @@ scale_y_continuous(limits=c(50, 200), expand = c(0, 0))+
 labs(x="Dose",y="Time in Hours",fill="Probability")
 
 pburrNEW <- function(x,a,b,T){(1+(T/x)^(a)*exp((T-x)/b))^(-1)}
-tdr1 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0/Y+k1)*X),start=list(k0=1,k1=1),data=data1,control = nls.control(maxiter = 1000))
-tdr2 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y^(-k2)+k1)*X),start=list(k0=1,k1=1,k2=1),data=data1,control = nls.control(maxiter = 1000))
-tdr3 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y+k1)*X),start=list(k0=1,k1=1),data=data1,control = nls.control(maxiter = 1000))
+tdr1 <- minpack.lm::nlsLM(Z~1-exp(-exp(-k0/Y+k1)*X),start=list(k0=1,k1=1),data=data1,control = nls.control(maxiter = 1000))
+tdr2 <- minpack.lm::nlsLM(Z~1-exp(-exp(-k0*Y^(-k2)+k1)*X),start=list(k0=1,k1=1,k2=1),data=data1,control = nls.control(maxiter = 1000))
+tdr3 <- minpack.lm::nlsLM(Z~1-exp(-exp(-k0*(tau-Y))*X),start=list(k0=1,tau=1),data=data1,control = nls.control(maxiter = 1000))
 tdr4 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0/Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data1,control = nls.control(maxiter = 1000))
 tdr5 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y^(-j2)+j1))^(-a),start=list(a=1,j0=1,j1=1,j2=1),data=data1,control = nls.control(maxiter = 1000))
-tdr6 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data1,control = nls.control(maxiter = 1000))
+tdr6 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(-j0*Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data1,control = nls.control(maxiter = 1000))
 tdr7 <- minpack.lm::nlsLM(Z~code(dose=X,a=q1,b=q2,y=q3,d50=q4)*pburrNEW(x=Y,a=q5,b=q6,T=q7*d^(-q8)+q9),start=list(q1=1,q2=1,q3=1,q4=10,q5=1,q6=1,q7=1,q8=1,q9=1),data=data1,control = nls.control(maxiter = 1000))
 
 # moment calculations
@@ -234,12 +234,12 @@ scale_y_continuous(limits=c(50, 200), expand = c(0, 0))+
 labs(x="Dose",y="Time in Hours",fill="Probability")
 
 pburrNEW <- function(x,a,b,T){(1+(T/x)^(a)*exp((T-x)/b))^(-1)}
-tdr1 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0/Y+k1)*X),start=list(k0=1,k1=1),data=data2,control = nls.control(maxiter = 1000))
-tdr2 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y^(-k2)+k1)*X),start=list(k0=1,k1=1,k2=1),data=data2,control = nls.control(maxiter = 1000))
-tdr3 <- minpack.lm::nlsLM(Z~1-exp(-exp(k0*Y+k1)*X),start=list(k0=1,k1=1),data=data2,control = nls.control(maxiter = 1000))
+tdr1 <- minpack.lm::nlsLM(Z~1-exp(-exp(-k0/Y+k1)*X),start=list(k0=1,k1=1),data=data2,control = nls.control(maxiter = 1000))
+tdr2 <- minpack.lm::nlsLM(Z~1-exp(-exp(-k0*Y^(-k2)+k1)*X),start=list(k0=1,k1=1,k2=1),data=data2,control = nls.control(maxiter = 1000))
+tdr3 <- minpack.lm::nlsLM(Z~1-exp(-exp(-k0*(tau-Y))*X),start=list(k0=1,tau=1),data=data2,control = nls.control(maxiter = 1000))
 tdr4 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0/Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data2,control = nls.control(maxiter = 1000))
 tdr5 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y^(-j2)+j1))^(-a),start=list(a=1,j0=1,j1=1,j2=1),data=data2,control = nls.control(maxiter = 1000))
-tdr6 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(j0*Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data2,control = nls.control(maxiter = 1000))
+tdr6 <- minpack.lm::nlsLM(Z~1-(1+X*(2^(1/a)-1)/exp(-j0*Y+j1))^(-a),start=list(a=1,j0=1,j1=1),data=data2,control = nls.control(maxiter = 1000))
 tdr7 <- minpack.lm::nlsLM(Z~code(dose=X,a=q1,b=q2,y=q3,d50=q4)*pburrNEW(x=Y,a=q5,b=q6,T=q7*d^(-q8)+q9),start=list(q1=1,q2=1,q3=1,q4=10,q5=1,q6=1,q7=1,q8=1,q9=1),data=data2,control = nls.control(maxiter = 1000))
 
 # moment calculations
