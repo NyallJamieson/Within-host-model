@@ -371,10 +371,10 @@ AIC(high_dist_gamma)
 AIC(high_dist_weibull)
 AIC(high_dist_burr)
 
-# Hetero random
-R4 <- read.csv("RESULTS-HETERORANDOM.csv")[,2:3]
+# Hetero exact
+R3 <- read.csv("Results.Hetero.Exact.csv")[,2:3]
 dose <- seq(1,500,by=1)
-prob <- unname(table(R4[,1]))/1000
+prob <- unname(table(R3[,1]))/1000
 plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model C",yaxt="n")
 axis(2, at = c(0,0.5,1), labels = c(0,0.5,1.0))
 
@@ -396,7 +396,7 @@ val <- c()
 for (i in t){
 print(i)
 for (j in d){
-val <- append(val,length(R4[which(R4[,1]==j&R4[,2]<=i),2])/1000)}}
+val <- append(val,length(R3[which(R3[,1]==j&R3[,2]<=i),2])/1000)}}
 data4 <- expand.grid(X=d,Y=t)
 data4$Z <- val
 data4[length(d)*length(t)+1,] <-c(1000,1000,1)
