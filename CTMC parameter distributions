@@ -146,3 +146,11 @@ C2 <- results3[which(results3[,7]<200),7]
 ker_C <- density(C2)
 plot(ker_C,xlab="C",main=expression("Distribution of C"))
 polygon(ker_C,col="skyblue")
+
+ker_phi <- density(results3$phi,"bw"=0.0001)
+plot(ker_phi,xlab=expression(phi),main=expression("Distribution of "* phi))
+polygon(ker_phi,col="skyblue")
+
+ker_T <- density(results3$T,"bw"=2)
+plot(ker_T,xlab="T",main=expression("Distribution of T"),xlim=c(0,200000))
+polygon(ker_T,col="skyblue")
