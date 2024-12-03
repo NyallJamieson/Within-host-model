@@ -127,7 +127,7 @@ plot(ker_beta,xlab=expression(beta),main=expression("Distribution of "* beta))
 polygon(ker_beta,col="skyblue")
 
 ker_G <- density(results3$G_dist,"bw"=2)
-plot(ker_G,xlab="G",main=expression("Distribution of G"))
+plot(ker_G,xlab=expression("G"),main=expression("Distribution of G"))
 polygon(ker_G,col="skyblue")
 
 ker_lambda <- density(results3$h_dist,"bw"=0.0002)
@@ -144,7 +144,7 @@ polygon(ker_omega,col="skyblue")
 
 C2 <- results3[which(results3[,7]<200),7]
 ker_C <- density(C2)
-plot(ker_C,xlab="C",main=expression("Distribution of C"))
+plot(ker_C,xlab=expression(eta),main=expression("Distribution of "* eta))
 polygon(ker_C,col="skyblue")
 
 ker_phi <- density(results3$phi,"bw"=0.0001)
@@ -152,5 +152,5 @@ plot(ker_phi,xlab=expression(phi),main=expression("Distribution of "* phi))
 polygon(ker_phi,col="skyblue")
 
 ker_T <- density(results3$T,"bw"=2)
-plot(ker_T,xlab="T",main=expression("Distribution of T"),xlim=c(0,200000))
+plot(ker_T,xlab=expression("T"),main=expression("Distribution of T"),xlim=c(0,200000))
 polygon(ker_T,col="skyblue")
