@@ -69,9 +69,14 @@ MODEL.simul <- function(y,maxstep=10000000){
               } else {return(c(NA,NA))}
 }
 
-results <- dplyr::bind_rows(results,as.data.frame(na.omit(do.call(rbind,parallel::mclapply(1:100,MODEL.simul,mc.cores=parallel::detectCores())),na.action="omit")))
+results <- dplyr::bind_rows(results,as.data.frame(na.omit(do.call(rbind,parallel::mclapply(1:1000,MODEL.simul,mc.cores=parallel::detectCores())),na.action="omit")))
 }
 
-prcc_T <- results |>
-	dplyr::group_by(threshold) |>
-	summarise(mean_inc = mean(time,na.rm=TRUE))
+sens_T <- results %>%
+  group_by(threshold) %>%
+  summarise(
+    mean_inc = mean(time, na.rm = TRUE),
+    occurrences = n()  # Count the number of rows in each group
+  )
+
+
