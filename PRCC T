@@ -1,4 +1,4 @@
-load(ker_T)
+load("ker_T.RData")
 
 cdf_T <- cumsum(ker_T$y)/sum(ker_T$y)
 sample_from_dens_T <- function(n){
