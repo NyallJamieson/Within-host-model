@@ -3,7 +3,7 @@ colnames(results) <- c("threshold","time")
 
 xstart <- c(time=0,L=9,M=0)
 
-for (i in 1:500){
+for (i in 1:250){
 print(i)
 threshold <- sample(results3$T,size=1,replace=TRUE)
 
@@ -60,7 +60,7 @@ MODEL.simul <- function(y,maxstep=10000000){
               } else {return(c(NA,NA))}
 }
 
-results <- dplyr::bind_rows(results,as.data.frame(na.omit(do.call(rbind,parallel::mclapply(1:500,MODEL.simul,mc.cores=parallel::detectCores())),na.action="omit")))
+results <- dplyr::bind_rows(results,as.data.frame(na.omit(do.call(rbind,parallel::mclapply(1:250,MODEL.simul,mc.cores=parallel::detectCores())),na.action="omit")))
 }
 
 prcc_T <- results |>
