@@ -25,7 +25,6 @@ alpha=0.089
 beta=1.088
 theta <- ((lambda-alpha-beta)^2+4*lambda*alpha*G)^0.5
 x1 <- 0.5*(-lambda-alpha-beta+theta)
-C <- 108.955
 params <- c("lambda"=lambda,"alpha"=alpha,"beta"=beta)
 threshold <- phi*(x1+lambda)*exp(x1*eta)/theta
 
