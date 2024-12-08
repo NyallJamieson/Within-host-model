@@ -1,0 +1,40 @@
+sens_lambda <- read.csv("sens_lambda.csv")[,2:4]
+sens_A <- read.csv("sens_A.csv")[,2:4]
+sens_w <- read.csv("sens_w.csv")[,2:4]
+sens_G <- read.csv("sens_G.csv")[,2:4]
+sens_alpha <- read.csv("sens_alpha.csv")[,2:4]
+sens_beta <- read.csv("sens_beta.csv")[,2:4]
+sens_eta <- read.csv("sens_eta.csv")[,2:4]
+sens_phi <- read.csv("sens_phi.csv")[,2:4]
+sens_T <- read.csv("sens_T.csv")[,2:4]
+
+inc_lambda <- cor(sens_lambda$lambda,sens_lambda$mean_inc,method="spearman")
+inc_A <- cor(sens_A$A,sens_A$mean_inc,method="spearman")
+inc_w <- cor(sens_w$w,sens_w$mean_inc,method="spearman")
+inc_G <- cor(sens_G$G,sens_G$mean_inc,method="spearman")
+inc_alpha <- cor(sens_alpha$alpha,sens_alpha$mean_inc,method="spearman")
+inc_beta <- cor(sens_beta$beta,sens_beta$mean_inc,method="spearman")
+inc_eta <- cor(sens_eta$eta,sens_eta$mean_inc,method="spearman")
+inc_phi <- cor(sens_phi$phi,sens_phi$mean_inc,method="spearman")
+inc_T <- cor(sens_T$threshold,sens_T$mean_inc,method="spearman")
+
+prob_lambda <- cor(sens_lambda$lambda,sens_lambda$occurrences,method="spearman")
+prob_A <- cor(sens_A$A,sens_A$occurrences,method="spearman")
+prob_w <- cor(sens_w$w,sens_w$occurrences,method="spearman")
+prob_G <- cor(sens_G$G,sens_G$occurrences,method="spearman")
+prob_alpha <- cor(sens_alpha$alpha,sens_alpha$occurrences,method="spearman")
+prob_beta <- cor(sens_beta$beta,sens_beta$occurrences,method="spearman")
+prob_eta <- cor(sens_eta$eta,sens_eta$occurrences,method="spearman")
+prob_phi <- cor(sens_phi$phi,sens_phi$occurrences,method="spearman")
+prob_T <- cor(sens_T$threshold,sens_T$occurrences,method="spearman")
+
+# incubation tornado plot
+data <- data.frame(
+    Variable = c(expression(lambda),expression(A),expression(omega),expression(G),expression(alpha),expression(beta),expression(eta),expression(phi),expression(T)),
+    Low = c(-1, -1, -1, -1, -1, -1, -1, -1, -1)
+    High = c(1, 1, 1, 1, 1, 1, 1, 1, 1)
+)
+
+# Sort by absolute impact for a classic tornado plot structure
+data <- data[order(abs(data$High - data$Low), decreasing = TRUE), ]
+
