@@ -89,8 +89,15 @@ MODEL.simul <- function(y,maxstep=10000000){
 results <- dplyr::bind_rows(results,as.data.frame(na.omit(do.call(rbind,parallel::mclapply(1:1000,MODEL.simul,mc.cores=75)),na.action="omit")))
 }
 
-sens_G <- results %>%
-  group_by(G) %>%
+sens_A <- results %>%
+  group_by(A) %>%
+  summarise(
+    mean_inc = mean(time, na.rm = TRUE),
+    occurrences = n()  # Count the number of rows in each group
+  )
+
+sens_w <- results %>%
+  group_by(w) %>%
   summarise(
     mean_inc = mean(time, na.rm = TRUE),
     occurrences = n()  # Count the number of rows in each group
