@@ -30,11 +30,29 @@ prob_T <- cor(sens_T$threshold,sens_T$occurrences,method="spearman")
 
 # incubation tornado plot
 data <- data.frame(
-    Variable = c(expression(lambda),expression(A),expression(omega),expression(G),expression(alpha),expression(beta),expression(eta),expression(phi),expression(T)),
-    Low = c(-1, -1, -1, -1, -1, -1, -1, -1, -1)
-    High = c(1, 1, 1, 1, 1, 1, 1, 1, 1)
+    Variable = c("lambda", "A", "w", "G", "alpha", "beta", "eta", "phi", "T"),
+    cor1 = c(inc_lambda,inc_A,inc_w,inc_G,inc_alpha,inc_beta,inc_eta,inc_phi,inc_T),
+    cor2 = c(prob_lambda,prob_A,prob_w,prob_G,prob_alpha,prob_beta,prob_eta,prob_phi,prob_T)
 )
 
-# Sort by absolute impact for a classic tornado plot structure
-data <- data[order(abs(data$High - data$Low), decreasing = TRUE), ]
+# Order data by the absolute values of the Result column
+data1 <- data[order(abs(data$cor1), decreasing = FALSE), ]
+data1$Variable <- expression("A",lambda,omega,"G",phi,beta,alpha,"T"["L"],eta)
+barplot(
+    data1$cor1, 
+    names.arg = data1$Variable, 
+    horiz = TRUE, 
+    las = 1, # Rotate axis labels
+    col = ifelse(data1$cor1 > 0, "blue", "red"), # Positive in blue, negative in red,
+    xlim = c(-1, 1))
+
+data2 <- data[order(abs(data$cor2), decreasing = FALSE), ]
+data2$Variable <- expression(phi,"T"["L"],eta,alpha,beta,"A","G",lambda,omega)
+barplot(
+    data2$cor2, 
+    names.arg = data2$Variable, 
+    horiz = TRUE, 
+    las = 1, # Rotate axis labels
+    col = ifelse(data2$cor2 > 0, "blue", "red"), # Positive in blue, negative in red,
+    xlim = c(-1, 1))
 
