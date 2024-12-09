@@ -37,7 +37,7 @@ data <- data.frame(
 
 # Order data by the absolute values of the Result column
 data1 <- data[order(abs(data$cor1), decreasing = FALSE), ]
-data1$Variable <- expression("A",lambda,omega,"G",phi,beta,alpha,"T"["L"],eta)
+data1$Variable <- expression(psi,lambda,omega,"G",phi,beta,alpha,"T"["L"],eta)
 barplot(
     data1$cor1, 
     names.arg = data1$Variable, 
@@ -47,7 +47,7 @@ barplot(
     xlim = c(-1, 1))
 
 data2 <- data[order(abs(data$cor2), decreasing = FALSE), ]
-data2$Variable <- expression(phi,"T"["L"],eta,alpha,beta,"A","G",lambda,omega)
+data2$Variable <- expression(phi,"T"["L"],eta,alpha,beta,psi,"G",lambda,omega)
 barplot(
     data2$cor2, 
     names.arg = data2$Variable, 
