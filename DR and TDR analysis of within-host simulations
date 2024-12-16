@@ -372,7 +372,7 @@ AIC(high_dist_weibull)
 AIC(high_dist_burr)
 
 # Hetero exact
-R3 <- read.csv("Results.Hetero.Exact.csv")[,2:3]
+R3 <- read.csv("Results.Hetero.Exact.1to500.csv")[,2:3]
 dose <- seq(1,500,by=1)
 prob <- unname(table(R3[,1]))/1000
 plot(dose,prob,xlim=c(0,60),xlab="Dose",ylab="Probability of illness",main="DR curve for model C",yaxt="n")
@@ -397,9 +397,9 @@ for (i in t){
 print(i)
 for (j in d){
 val <- append(val,length(R3[which(R3[,1]==j&R3[,2]<=i),2])/1000)}}
-data4 <- expand.grid(X=d,Y=t)
-data4$Z <- val
-data4[length(d)*length(t)+1,] <-c(1000,1000,1)
+data3 <- expand.grid(X=d,Y=t)
+data3$Z <- val
+data3[length(d)*length(t)+1,] <-c(1000,1000,1)
 
 library("ggplot2")
 ggplot(data4,aes(X,Y,fill=Z))+
