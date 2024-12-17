@@ -82,7 +82,7 @@ plot(m3,col="blue",lwd=2,ylim=c(0,6),type="l",xlab="Deposited dose",ylab="Moment
 lines(log(m4),col="green",lwd=2)
 lines(sd,type="l",lwd=2,col="red")
 lines(m1,lwd=2)
-legend("topright",col=c("black","red","blue","green"),legend=c("mean","log(standard deviation)","skewness","log(kurtosis)"),lwd=2)
+legend("topright",col=c("black","red","blue","green"),legend=c("mean","standard deviation","skewness","log(kurtosis)"),lwd=2)
 
 # Elbow method
 
@@ -112,23 +112,31 @@ plot(k_values, wcss_values, type = "b", pch = 19, xlab = "Number of Clusters", y
 clusters <- cutree(hc, k = 3)
 low <- c()
 for (i in which(clusters==1)){
-low <- append(low,R1[which(R1[,1]==i),2])
+    low <- append(low,R1[which(R1[,1]==i),2])
 }
 medium <- c()
 for (i in which(clusters==2)){
-medium <- append(medium,R1[which(R1[,1]==i),2])
+    medium <- append(medium,R1[which(R1[,1]==i),2])
 }
 high <- c()
 for (i in which(clusters==3)){
-high <- append(high,R1[which(R1[,1]==i),2])
+    high <- append(high,R1[which(R1[,1]==i),2])
 }
 dens1 <- density(low)
 dens2 <- density(medium)
 dens3 <- density(high)
-plot(dens1,lwd=2,type="l",xlim=c(60,200),ylim=c(0,0.1),xlab="Time in hours",main="Clustered dose-dependent incubation-period distributions")
+plot(dens1,lwd=2,type="l",xlim=c(40,200),ylim=c(0,0.1),xlab="Time in hours",main="Clustered dose-dependent incubation-period distributions")
 lines(dens2,lwd=2,col="red")
 lines(dens3,lwd=2,col="green")
 legend("topright",lwd=2,col=c("black","red","green"),legend=c("low-dose","medium-dose","high-dose"))
+
+plot(clusters,type="l",lwd=2,xlab="Deposited dose",main="Clustered deposited doses",yaxt="n")
+# Suppress y-axis and add custom ticks
+axis(2, at = c(1.0, 2.0, 3.0), labels = FALSE) # No labels yet
+# Add rotated text at each tick position
+text(x = par("usr")[1] - 30, y = c(1.0, 2.0, 3.0), 
+     labels = c("low", "medium", "high"), 
+     srt = 90, xpd = TRUE, adj = 0.5)
 
 low_mean <- mean(low)
 low_var <- var(low)
