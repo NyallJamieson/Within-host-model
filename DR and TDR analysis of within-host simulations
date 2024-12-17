@@ -138,64 +138,6 @@ text(x = par("usr")[1] - 30, y = c(1.0, 2.0, 3.0),
      labels = c("low", "medium", "high"), 
      srt = 90, xpd = TRUE, adj = 0.5)
 
-low_mean <- mean(low)
-low_var <- var(low)
-low_skew <- PerformanceAnalytics::skewness(low)
-low_kurt <- PerformanceAnalytics::kurtosis(low,method="moment")
-med_mean <- mean(medium)
-med_var <- var(medium)
-med_skew <- PerformanceAnalytics::skewness(medium)
-med_kurt <- PerformanceAnalytics::kurtosis(medium,method="moment")
-high_mean <- mean(high)
-high_var <- var(high)
-high_skew <- PerformanceAnalytics::skewness(high)
-high_kurt <- PerformanceAnalytics::kurtosis(high,method="moment")
-low_mean
-low_var
-low_skew
-low_kurt
-med_mean
-med_var
-med_skew
-med_kurt
-high_mean
-high_var
-high_skew
-high_var
-
-low_dist_norm <- fitdistrplus::fitdist(low/24,"norm",method="mle")
-low_dist_lnorm <- fitdistrplus::fitdist(low/24,"lnorm",method="mle")
-low_dist_gamma <- fitdistrplus::fitdist(low/24,"gamma",method="mle")
-low_dist_weibull <- fitdistrplus::fitdist(low/24,"weibull",method="mle")
-low_dist_burr <- fitdistrplus::fitdist(low/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
-med_dist_norm <- fitdistrplus::fitdist(medium/24,"norm",method="mle")
-med_dist_lnorm <- fitdistrplus::fitdist(medium/24,"lnorm",method="mle")
-med_dist_gamma <- fitdistrplus::fitdist(medium/24,"gamma",method="mle")
-med_dist_weibull <- fitdistrplus::fitdist(medium/24,"weibull",method="mle")
-med_dist_burr <- fitdistrplus::fitdist(medium/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
-high_dist_norm <- fitdistrplus::fitdist(high/24,"norm",method="mle")
-high_dist_lnorm <- fitdistrplus::fitdist(high/24,"lnorm",method="mle")
-high_dist_gamma <- fitdistrplus::fitdist(high/24,"gamma",method="mle")
-high_dist_weibull <- fitdistrplus::fitdist(high/24,"weibull",method="mle")
-high_dist_burr <- fitdistrplus::fitdist(high/24,"burrNEW",method="mle",start=list(a=0.5,b=0.5,T=5))
-AIC(low_dist_norm)
-AIC(low_dist_lnorm)
-AIC(low_dist_gamma)
-AIC(low_dist_weibull)
-AIC(low_dist_burr)
-AIC(med_dist_norm)
-AIC(med_dist_lnorm)
-AIC(med_dist_gamma)
-AIC(med_dist_weibull)
-AIC(med_dist_burr)
-AIC(high_dist_norm)
-AIC(high_dist_lnorm)
-AIC(high_dist_gamma)
-AIC(high_dist_weibull)
-AIC(high_dist_burr)
-
-
-
 
 # Nb
 R2 <- read.csv("Results.NegBin.csv")[,2:3]
@@ -274,7 +216,7 @@ plot(m3,col="blue",lwd=2,ylim=c(0,6),type="l",xlab="Deposited dose",ylab="Moment
 lines(log(m4),col="green",lwd=2)
 lines(sd,type="l",lwd=2,col="red")
 lines(m1,lwd=2)
-legend("topright",col=c("black","red","blue","green"),legend=c("mean","log(standard deviation)","skewness","log(kurtosis)"),lwd=2)
+legend("topright",col=c("black","red","blue","green"),legend=c("mean","standard deviation","skewness","log(kurtosis)"),lwd=2)
 
 
 # Elbow method
@@ -302,82 +244,40 @@ wcss_values <- sapply(k_values, calculate_wcss)
 # Plot the Elbow Method
 plot(k_values, wcss_values, type = "b", pch = 19, xlab = "Number of Clusters", ylab = "Within-Cluster Sum of Squares (WCSS)", main = "Elbow Method for Optimal k")
 
-clusters <- cutree(hc, k = 3)
+clusters <- cutree(hc, k = 4)
 low <- c()
 for (i in which(clusters==1)){
 low <- append(low,R2[which(R2[,1]==i),2])
 }
-medium <- c()
+medium_low <- c()
 for (i in which(clusters==2)){
-medium <- append(medium,R2[which(R2[,1]==i),2])
+medium_low <- append(medium_low,R2[which(R2[,1]==i),2])
+}
+medium_high <- c()
+for (i in which(clusters==3)){
+medium_high <- append(medium_high,R2[which(R2[,1]==i),2])
 }
 high <- c()
-for (i in which(clusters==3)){
+for (i in which(clusters==4)){
 high <- append(high,R2[which(R2[,1]==i),2])
 }
 dens1 <- density(low)
-dens2 <- density(medium)
-dens3 <- density(high)
-plot(dens1,lwd=2,type="l",xlim=c(60,200),ylim=c(0,0.1),xlab="Time in hours",main="Clustered dose-dependent incubation-period distributions")
+dens2 <- density(medium_low)
+dens3 <- density(medium_high)
+dens4 <- density(high)
+plot(dens1,lwd=2,type="l",xlim=c(40,200),ylim=c(0,0.1),xlab="Time in hours",main="Clustered dose-dependent incubation-period distributions")
 lines(dens2,lwd=2,col="red")
-lines(dens3,lwd=2,col="green")
-legend("topright",lwd=2,col=c("black","red","green"),legend=c("low-dose","medium-dose","high-dose"))
+lines(dens3,lwd=2,col="blue")
+lines(dens4,lwd=2,col="green")
+legend("topright",lwd=2,col=c("black","red","blue","green"),legend=c("low-dose","low-medium-dose","high-medium-dose","high-dose"))
 
-low_mean <- mean(low)
-low_var <- var(low)
-low_skew <- PerformanceAnalytics::skewness(low)
-low_kurt <- PerformanceAnalytics::kurtosis(low,method="moment")
-med_mean <- mean(medium)
-med_var <- var(medium)
-med_skew <- PerformanceAnalytics::skewness(medium)
-med_kurt <- PerformanceAnalytics::kurtosis(medium,method="moment")
-high_mean <- mean(high)
-high_var <- var(high)
-high_skew <- PerformanceAnalytics::skewness(high)
-high_kurt <- PerformanceAnalytics::kurtosis(high,method="moment")
-low_mean
-low_var
-low_skew
-low_kurt
-med_mean
-med_var
-med_skew
-med_kurt
-high_mean
-high_var
-high_skew
-high_var
-
-low_dist_norm <- fitdistrplus::fitdist(low/24,"norm",method="mle")
-low_dist_lnorm <- fitdistrplus::fitdist(low/24,"lnorm",method="mle")
-low_dist_gamma <- fitdistrplus::fitdist(low/24,"gamma",method="mle")
-low_dist_weibull <- fitdistrplus::fitdist(low/24,"weibull",method="mle")
-low_dist_burr <- fitdistrplus::fitdist(low/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
-med_dist_norm <- fitdistrplus::fitdist(medium/24,"norm",method="mle")
-med_dist_lnorm <- fitdistrplus::fitdist(medium/24,"lnorm",method="mle")
-med_dist_gamma <- fitdistrplus::fitdist(medium/24,"gamma",method="mle")
-med_dist_weibull <- fitdistrplus::fitdist(medium/24,"weibull",method="mle")
-med_dist_burr <- fitdistrplus::fitdist(medium/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
-high_dist_norm <- fitdistrplus::fitdist(high/24,"norm",method="mle")
-high_dist_lnorm <- fitdistrplus::fitdist(high/24,"lnorm",method="mle")
-high_dist_gamma <- fitdistrplus::fitdist(high/24,"gamma",method="mle")
-high_dist_weibull <- fitdistrplus::fitdist(high/24,"weibull",method="mle")
-high_dist_burr <- fitdistrplus::fitdist(high/24,"burrNEW",method="mle",start=list(a=0.5,b=0.5,T=5))
-AIC(low_dist_norm)
-AIC(low_dist_lnorm)
-AIC(low_dist_gamma)
-AIC(low_dist_weibull)
-AIC(low_dist_burr)
-AIC(med_dist_norm)
-AIC(med_dist_lnorm)
-AIC(med_dist_gamma)
-AIC(med_dist_weibull)
-AIC(med_dist_burr)
-AIC(high_dist_norm)
-AIC(high_dist_lnorm)
-AIC(high_dist_gamma)
-AIC(high_dist_weibull)
-AIC(high_dist_burr)
+plot(clusters,type="l",lwd=2,xlab="Deposited dose",main="Clustered deposited doses",yaxt="n")
+# Suppress y-axis and add custom ticks
+axis(2, at = c(1.0, 2.0, 3.0, 4.0), labels = FALSE) # No labels yet
+# Add rotated text at each tick position
+text(x = par("usr")[1] - 30, y = c(1.0, 2.0, 3.0, 4.0), 
+     labels = c("low", "low\nmedium", "high\nmedium", "high"), 
+     srt = 90, xpd = TRUE, adj = 0.5)
 
 # Hetero exact
 R3 <- read.csv("Results.Hetero.Exact.1to500.csv")[,2:3]
@@ -432,7 +332,7 @@ m2 <- c()
 m3 <- c()
 m4 <- c()
 for (i in 1:500){
-times <- R4[which(R4[,1]==i),2]
+times <- R3[which(R3[,1]==i),2]
 m1 <- append(m1,mean(times))
 m2 <- append(m2,var(times))
 m3 <- append(m3,PerformanceAnalytics::skewness(times))
@@ -441,15 +341,13 @@ m4 <- append(m4,PerformanceAnalytics::kurtosis(times,method="moment"))
 m1 <- m1/24
 sd <- (m2^0.5)/24
 
-plot(m3,col="blue",lwd=2,ylim=c(0,20),type="l",xlab="Deposited dose",ylab="Moments for model C",main="First four moments of the dose-dependent incubation period")
+plot(log(m3),col="blue",lwd=2,ylim=c(0,8),type="l",xlab="Deposited dose",ylab="Moments for model C",main="First four moments of the dose-dependent incubation period")
 lines(log(m4),col="green",lwd=2)
-lines(sd,type="l",lwd=2,col="red")
+lines(log(sd),type="l",lwd=2,col="red")
 lines(m1,lwd=2)
 legend("topright",col=c("black","red","blue","green"),legend=c("mean","log(standard deviation)","skewness","log(kurtosis)"),lwd=2)
 
-
 # Elbow method
-
 summary_matrix <- as.matrix(data.frame(m1,m2,m3,m4))
 # Install and load necessary packages
 library(cluster)
@@ -476,100 +374,34 @@ plot(k_values, wcss_values, type = "b", pch = 19, xlab = "Number of Clusters", y
 clusters <- cutree(hc, k = 4)
 low <- c()
 for (i in which(clusters==1)){
-low <- append(low,R4[which(R4[,1]==i),2])
+low <- append(low,R3[which(R3[,1]==i),2])
 }
-medium1 <- c()
+medium_low <- c()
 for (i in which(clusters==2)){
-medium1 <- append(medium1,R4[which(R4[,1]==i),2])
+medium_low <- append(medium_low,R3[which(R3[,1]==i),2])
 }
-medium2 <- c()
+medium_high <- c()
 for (i in which(clusters==3)){
-medium2 <- append(medium2,R4[which(R4[,1]==i),2])
+medium_high <- append(medium_high,R3[which(R3[,1]==i),2])
 }
 high <- c()
 for (i in which(clusters==4)){
-high <- append(high,R4[which(R4[,1]==i),2])
+high <- append(high,R3[which(R3[,1]==i),2])
 }
 dens1 <- density(low)
-dens2 <- density(medium1)
-dens3 <- density(medium2)
-dens3 <- density(high)
+dens2 <- density(medium_low)
+dens3 <- density(medium_high)
+dens4 <- density(high)
 plot(dens1,lwd=2,type="l",xlim=c(0,200),ylim=c(0,0.1),xlab="Time in hours",main="Clustered dose-dependent incubation-period distributions")
 lines(dens2,lwd=2,col="red")
-lines(dens4,lwd=2,col="green")
 lines(dens3,lwd=2,col="blue")
-legend("topright",lwd=2,col=c("black","red","blue","green"),legend=c("low-dose","medium-dose 1","medium-dose 2","high-dose"))
+lines(dens4,lwd=2,col="green")
+legend("topright",lwd=2,col=c("black","red","blue","green"),legend=c("low-dose","low-medium-dose","high-medium-dose","high-dose"))
 
-low_mean <- mean(low)
-low_var <- var(low)
-low_skew <- PerformanceAnalytics::skewness(low)
-low_kurt <- PerformanceAnalytics::kurtosis(low,method="moment")
-med1_mean <- mean(medium1)
-med1_var <- var(medium1)
-med1_skew <- PerformanceAnalytics::skewness(medium1)
-med1_kurt <- PerformanceAnalytics::kurtosis(medium1,method="moment")
-med2_mean <- mean(medium2)
-med2_var <- var(medium2)
-med2_skew <- PerformanceAnalytics::skewness(medium2)
-med2_kurt <- PerformanceAnalytics::kurtosis(medium2,method="moment")
-high_mean <- mean(high)
-high_var <- var(high)
-high_skew <- PerformanceAnalytics::skewness(high)
-high_kurt <- PerformanceAnalytics::kurtosis(high,method="moment")
-low_mean
-low_var
-low_skew
-low_kurt
-med1_mean
-med1_var
-med1_skew
-med1_kurt
-med2_mean
-med2_var
-med2_skew
-med2_kurt
-high_mean
-high_var
-high_skew
-high_var
-
-low_dist_norm <- fitdistrplus::fitdist(low/24,"norm",method="mle")
-low_dist_lnorm <- fitdistrplus::fitdist(low/24,"lnorm",method="mle")
-low_dist_gamma <- fitdistrplus::fitdist(low/24,"gamma",method="mle")
-low_dist_weibull <- fitdistrplus::fitdist(low/24,"weibull",method="mle")
-low_dist_burr <- fitdistrplus::fitdist(low/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
-med1_dist_norm <- fitdistrplus::fitdist(medium1/24,"norm",method="mle")
-med1_dist_lnorm <- fitdistrplus::fitdist(medium1/24,"lnorm",method="mle")
-med1_dist_gamma <- fitdistrplus::fitdist(medium1/24,"gamma",method="mle")
-med1_dist_weibull <- fitdistrplus::fitdist(medium1/24,"weibull",method="mle")
-med1_dist_burr <- fitdistrplus::fitdist(medium1/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
-med2_dist_norm <- fitdistrplus::fitdist(medium2/24,"norm",method="mle")
-med2_dist_lnorm <- fitdistrplus::fitdist(medium2/24,"lnorm",method="mle")
-med2_dist_gamma <- fitdistrplus::fitdist(medium2/24,"gamma",method="mle")
-med2_dist_weibull <- fitdistrplus::fitdist(medium2/24,"weibull",method="mle")
-med2_dist_burr <- fitdistrplus::fitdist(medium2/24,"burrNEW",method="mle",start=list(a=1,b=1,T=5))
-high_dist_norm <- fitdistrplus::fitdist(high/24,"norm",method="mle")
-high_dist_lnorm <- fitdistrplus::fitdist(high/24,"lnorm",method="mle")
-high_dist_gamma <- fitdistrplus::fitdist(high/24,"gamma",method="mle")
-high_dist_weibull <- fitdistrplus::fitdist(high/24,"weibull",method="mle")
-high_dist_burr <- fitdistrplus::fitdist(high/24,"burrNEW",method="mle",start=list(a=10,b=5,T=5))
-AIC(low_dist_norm)
-AIC(low_dist_lnorm)
-AIC(low_dist_gamma)
-AIC(low_dist_weibull)
-AIC(low_dist_burr)
-AIC(med1_dist_norm)
-AIC(med1_dist_lnorm)
-AIC(med1_dist_gamma)
-AIC(med1_dist_weibull)
-AIC(med1_dist_burr)
-AIC(med2_dist_norm)
-AIC(med2_dist_lnorm)
-AIC(med2_dist_gamma)
-AIC(med2_dist_weibull)
-AIC(med2_dist_burr)
-AIC(high_dist_norm)
-AIC(high_dist_lnorm)
-AIC(high_dist_gamma)
-AIC(high_dist_weibull)
-AIC(high_dist_burr)
+plot(clusters,type="l",lwd=2,xlab="Deposited dose",main="Clustered deposited doses",yaxt="n")
+# Suppress y-axis and add custom ticks
+axis(2, at = c(1.0, 2.0, 3.0, 4.0), labels = FALSE) # No labels yet
+# Add rotated text at each tick position
+text(x = par("usr")[1] - 30, y = c(1.0, 2.0, 3.0, 4.0), 
+     labels = c("low", "low\nmedium", "high\nmedium", "high"), 
+     srt = 90, xpd = TRUE, adj = 0.5)
